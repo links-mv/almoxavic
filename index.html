@@ -3,109 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Almoxavic</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1c355e">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="logo-pwa.png">
-
+    <title>Painel Almoxavic</title>
     <style>
-        /* ==========================================
-           1. ESTILOS DO SEU SISTEMA (PORTAL VIC)
-           Cole aqui todo o CSS do seu design original
-           ========================================== */
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #f4f7f6;
+            --text-color: #333;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Banner discreto de instalação que só aparece se o app não estiver instalado */
-        #pwa-install-banner {
-            display: none;
-            background: #e67e22; /* Laranja VLI */
-            color: white;
-            padding: 12px;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 9999;
-            font-weight: bold;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-        #pwa-install-banner button {
-            background: #1c355e; /* Azul VLI */
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            margin-left: 10px;
-            border-radius: 4px;
-            cursor: pointer;
+
+        /* Header */
+        header {
+            width: 100%;
+            background-color: var(--white);
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-placeholder {
             font-weight: bold;
+            font-size: 20px;
+            color: var(--primary-color);
+            /* Substitua pela tag <img> do logo da VLI quando quiser:
+            content: url('URL_DA_IMAGEM'); max-height: 40px; 
+            */
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            transition: 0.3s;
+        }
+
+        nav button:hover, nav button.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* Container Principal */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 30px 20px;
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        /* Formulários e Inputs */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+
+        button.btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        /* Status das movimentações */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge.entrada { background-color: var(--success-color); }
+        .badge.retirada { background-color: var(--danger-color); }
+
+        #login-page {
+            max-width: 400px;
+            margin-top: 100px;
         }
     </style>
 </head>
 <body>
 
-    <div id="pwa-install-banner">
-        Disponível offline! Deseja instalar o Almoxavic na sua tela inicial?
-        <button id="btn-pwa-install">INSTALAR</button>
+    <header id="main-header" style="display: none;">
+        <div class="logo-placeholder">Painel Almoxavic</div>
+        <nav>
+            <button onclick="showScreen('estoque')" id="nav-estoque" class="active">Estoque</button>
+            <button onclick="showScreen('retirada')" id="nav-retirada">Retirada</button>
+            <button onclick="showScreen('entrada')" id="nav-entrada">Entrada</button>
+            <button onclick="showScreen('relatorios')" id="nav-relatorios">Relatórios</button>
+            <button onclick="logout()" style="color: var(--danger-color);">Sair</button>
+        </nav>
+    </header>
+
+    <div id="login-page" class="container" style="display: block;">
+        <h2 style="text-align: center;">Acesso Almoxavic</h2>
+        <div class="form-group">
+            <label for="username">Usuário</label>
+            <input type="text" id="username" placeholder="Digite seu usuário">
+        </div>
+        <div class="form-group">
+            <label for="password">Senha</label>
+            <input type="password" id="password" placeholder="Digite sua senha">
+        </div>
+        <button class="btn" onclick="login()">Entrar</button>
     </div>
 
-    <div style="padding: 20px; margin-top: 50px;">
-        <h1>Painel Almoxavic</h1>
-        <p>Seu sistema de gestão de almoxarifado está rodando direto no HTML!</p>
+    <div id="main-system" class="container" style="display: none;">
+        
+        <div id="screen-estoque" class="screen active">
+            <h2>Consultar Estoque de EPIs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item (EPI)</th>
+                        <th>Quantidade Atual</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-estoque">
+                    </tbody>
+            </table>
         </div>
 
+        <div id="screen-retirada" class="screen">
+            <h2>Fazer Retirada (Saída)</h2>
+            <div class="form-group">
+                <label for="retirada-item">Selecione o EPI</label>
+                <select id="retirada-item"></select>
+            </div>
+            <div class="form-group">
+                <label for="retirada-qtd">Quantidade</label>
+                <input type="number" id="retirada-qtd" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label for="retirada-colaborador">Colaborador / Destino</label>
+                <input type="text" id="retirada-colaborador" placeholder="Nome do colaborador">
+            </div>
+            <button class="btn" onclick="processarRetirada()" style="background-color: var(--danger-color);">Confirmar Retirada</button>
+        </div>
+
+        <div id="screen-entrada" class="screen">
+            <h2>Realizar Entrada (Abastecimento)</h2>
+            <div class="form-group">
+                <label for="entrada-item">Selecione o EPI</label>
+                <select id="entrada-item"></select>
+            </div>
+            <div class="form-group">
+                <label for="entrada-qtd">Quantidade</label>
+                <input type="number" id="entrada-qtd" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label for="entrada-nf">Nota Fiscal / NF</label>
+                <input type="text" id="entrada-nf" placeholder="Número da NF ou Origem">
+            </div>
+            <button class="btn" onclick="processarEntrada()" style="background-color: var(--success-color);">Confirmar Entrada</button>
+        </div>
+
+        <div id="screen-relatorios" class="screen">
+            <h2>Histórico de Movimentações</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Tipo</th>
+                        <th>Item</th>
+                        <th>Qtd</th>
+                        <th>Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-relatorios">
+                    </tbody>
+            </table>
+        </div>
+
+    </div>
 
     <script>
-        // --- Registro do Service Worker ---
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("Service Worker ativo!"))
-            .catch(err => console.log("Erro no SW:", err));
+        // Dados iniciais simulados (No futuro, integrados ao Google Apps Script)
+        let estoque = [
+            { id: 1, nome: "Óculos de Proteção", qtd: 50 },
+            { id: 2, nome: "Luva Nitrílica (Par)", qtd: 120 },
+            { id: 3, nome: "Protetor Auricular Plug", qtd: 200 },
+            { id: 4, nome: "Capacete com Carneira", qtd: 15 },
+            { id: 5, nome: "Botina de Segurança", qtd: 30 }
+        ];
+
+        let historico = [
+            { data: "23/05/2026 10:15", tipo: "Entrada", item: "Óculos de Proteção", qtd: 10, detalhes: "NF 4022" },
+            { data: "23/05/2026 11:30", tipo: "Retirada", item: "Luva Nitrílica (Par)", qtd: 2, detalhes: "Colaborador: Marcos Silva" }
+        ];
+
+        // Autenticação simples
+        function login() {
+            // Só para pular a tela de login na simulação local
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('main-system').style.display = 'block';
+            inicializarSistema();
         }
 
-        // --- Lógica do Botão de Instalação ---
-        let deferredPrompt;
-        const installBanner = document.getElementById('pwa-install-banner');
-        const installBtn = document.getElementById('btn-pwa-install');
+        function logout() {
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('main-system').style.display = 'none';
+        }
 
-        // Captura o evento que diz que o app pode ser baixado
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Mostra o banner de instalação discretamente no topo do navegador
-            installBanner.style.display = 'block';
-        });
+        // Navegação das telas
+        function showScreen(screenId) {
+            // Esconde todas as telas
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Desmarca botões do menu
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            
+            // Ativa a tela e o botão correto
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+            document.getElementById(`nav-${screenId}`).classList.add('active');
+            
+            // Atualiza tabelas sempre que abrir
+            if(screenId === 'estoque') renderEstoque();
+            if(screenId === 'relatorios') renderRelatorios();
+        }
 
-        // Executa a instalação quando clica no botão "INSTALAR"
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Usuário escolheu: ${outcome}`);
-                deferredPrompt = null;
-                installBanner.style.style.display = 'none';
+        // Inicializar dropdowns e tabelas
+        function inicializarSistema() {
+            renderEstoque();
+            renderDropdowns();
+            renderRelatorios();
+        }
+
+        function renderEstoque() {
+            const tbody = document.getElementById('tabela-estoque');
+            tbody.innerHTML = '';
+            estoque.forEach(item => {
+                let status = item.qtd > 20 ? "Disponível" : item.qtd > 0 ? "Estoque Baixo" : "Esgotado";
+                let corStatus = item.qtd > 20 ? "green" : item.qtd > 0 ? "orange" : "red";
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.nome}</strong></td>
+                        <td>${item.qtd} un</td>
+                        <td style="color: ${corStatus}; font-weight: bold;">${status}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderDropdowns() {
+            const selectRetirada = document.getElementById('retirada-item');
+            const selectEntrada = document.getElementById('entrada-item');
+            
+            selectRetirada.innerHTML = '';
+            selectEntrada.innerHTML = '';
+
+            estoque.forEach(item => {
+                let opt = `<option value="${item.id}">${item.nome}</option>`;
+                selectRetirada.innerHTML += opt;
+                selectEntrada.innerHTML += opt;
+            });
+        }
+
+        function renderRelatorios() {
+            const tbody = document.getElementById('tabela-relatorios');
+            tbody.innerHTML = '';
+            // Mostra os mais recentes primeiro
+            [...historico].reverse().forEach(mov => {
+                let badgeClass = mov.tipo.toLowerCase() === 'entrada' ? 'badge entrada' : 'badge retirada';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${mov.data}</td>
+                        <td><span class="${badgeClass}">${mov.tipo}</span></td>
+                        <td>${mov.item}</td>
+                        <td>${mov.qtd}</td>
+                        <td>${mov.detalhes}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Lógica de Retirada
+        function processarRetirada() {
+            const idItem = parseInt(document.getElementById('retirada-item').value);
+            const qtd = parseInt(document.getElementById('retirada-qtd').value);
+            const colaborador = document.getElementById('retirada-colaborador').value.trim();
+
+            if (!colaborador) {
+                alert("Por favor, digite o nome do colaborador!");
+                return;
             }
-        });
 
-        // Esconde o banner se o app já foi instalado com sucesso
-        window.addEventListener('appinstalled', () => {
-            console.log('Almoxavic instalado com sucesso!');
-            installBanner.style.display = 'none';
-        });
+            let item = estoque.find(e => e.id === idItem);
+            
+            if (item.qtd < qtd) {
+                alert(`Saldo insuficiente! Estoque atual de ${item.nome}: ${item.qtd}`);
+                return;
+            }
 
-        // ------------------------------------------
-        // SEU JAVASCRIPT ORIGINAL
-        // Cole aqui suas funções do Apps Script, travas de formulário, etc.
-        // ------------------------------------------
+            // Subtrai do estoque
+            item.qtd -= qtd;
+
+            // Registra histórico
+            let agora = new Date();
+            historico.push({
+                data: agora.toLocaleString('pt-BR'),
+                tipo: "Retirada",
+                item: item.nome,
+                qtd: qtd,
+                detalhes: `Colaborador: ${colaborador}`
+            });
+
+            alert("Retirada realizada com sucesso!");
+            
+            // Limpa os campos após adicionar (Lógica limpa!)
+            document.getElementById('retirada-qtd').value = 1;
+            document.getElementById('retirada-colaborador').value = '';
+            
+            showScreen('estoque');
+        }
+
+        // Lógica de Entrada
+        function processarEntrada() {
+            const idItem = parseInt(document.getElementById('entrada-item').value);
+            const qtd = parseInt(document.getElementById('entrada-qtd').value);
+            const nf = document.getElementById('entrada-nf').value.trim();
+
+            if (!nf) {
+                alert("Por favor, insira o número da NF ou Origem!");
+                return;
+            }
+
+            let item = estoque.find(e => e.id === idItem);
+            
+            // Soma ao estoque
+            item.qtd += qtd;
+
+            // Registra histórico
+            let agora = new Date();
+            historico.push({
+                data: agora.toLocaleString('pt-BR'),
+                tipo: "Entrada",
+                item: item.nome,
+                qtd: qtd,
+                detalhes: `NF/Origem: ${nf}`
+            });
+
+            alert("Entrada registrada com sucesso!");
+            
+            // Limpa os campos
+            document.getElementById('entrada-qtd').value = 1;
+            document.getElementById('entrada-nf').value = '';
+            
+            showScreen('estoque');
+        }
     </script>
 </body>
 </html>
