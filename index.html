@@ -4,248 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almoxavic | Gestão de EPI</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0068B5">
-    <link rel="apple-touch-icon" href="logo-pwa.png">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            --primary: #0068B5; /* Azul VLI */
-            --accent: #EF7A1D;  /* Laranja VLI */
-            --bg-dark: #0a111a;
-            --bg-card: #111e2f;
-            --bg-input: #1a2a40;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.08);
-            --success: #10b981;
-            --danger: #ef4444;
-            --radius: 16px;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        
-        body {
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 0%, rgba(0, 104, 181, 0.15) 0%, transparent 70%);
-            color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px;
-        }
-
-        .app-container { width: 100%; max-width: 800px; margin: auto; }
-        .screen { display: none; width: 100%; animation: fadeIn 0.3s ease-out; }
+        :root { --primary: #0068B5; --accent: #EF7A1D; --bg-dark: #0a111a; --bg-card: #111e2f; --text-main: #f8fafc; }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 20px; }
+        .card { background: var(--bg-card); padding: 25px; border-radius: 16px; max-width: 400px; margin: auto; }
+        .screen { display: none; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px 24px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
-        
-        /* Logos */
-        .brand-logo { max-width: 140px; height: auto; margin-bottom: 16px; display: inline-block; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3)); }
-        .brand-logo-mini { max-height: 32px; width: auto; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3)); }
-
-        h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
-        h2 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-        input, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px; color: white; font-size: 15px; outline: none; transition: 0.2s; -webkit-appearance: none; }
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 104, 181, 0.3); }
-        
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; color: white; }
-        .btn-primary { background: var(--primary); }
-        .btn-primary:hover { background: #005696; }
-        .btn-accent { background: var(--accent); color: #fff; }
-        .btn-accent:hover { background: #d96d19; }
-        
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
-        @media (max-width: 480px) { .menu-grid { grid-template-columns: 1fr; } }
-        .menu-item { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); padding: 24px 16px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .menu-item:hover { border-color: var(--accent); background: rgba(239, 122, 29, 0.08); transform: translateY(-2px); }
-        .menu-item i { font-size: 26px; color: var(--primary); margin-bottom: 12px; transition: 0.2s; }
-        .menu-item:hover i { color: var(--accent); }
-        .menu-item h3 { font-size: 15px; font-weight: 500; }
-        
-        .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-        .btn-back { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .btn-back:hover { color: white; border-color: var(--text-muted); }
-        
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 500px; }
-        th, td { padding: 12px 16px; }
-        th { background: rgba(0, 0, 0, 0.2); color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-        tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
-        
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-        .badge-ok { background: rgba(0, 104, 181, 0.15); color: #60a5fa; }
-        .badge-low { background: rgba(239, 122, 29, 0.15); color: var(--accent); }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #1a2a40; color: white; }
+        button { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-
-        <div id="screen-login" class="screen active">
-            <div class="card" style="max-width: 380px; margin: auto;">
-                <div style="text-align: center; margin-bottom: 24px;">
-                    <img src="https://www.vli-logistica.com.br/wp-content/uploads/2021/12/Logo_VLI.svg" alt="VLI Logo" class="brand-logo">
-                    <h1>Almoxavic</h1>
-                    <p style="color: var(--text-muted); font-size: 13px;">Gestão Inteligente de EPIs</p>
-                </div>
-                <div class="form-group">
-                    <label>Usuário</label>
-                    <input type="text" id="login-user" placeholder="Matrícula ou Usuário">
-                </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label>Senha</label>
-                    <input type="password" id="login-pass" placeholder="••••••••">
-                </div>
-                <button class="btn btn-primary" onclick="navigateTo('menu')">Acessar Painel</button>
-            </div>
+    <div id="screen-login" class="screen active">
+        <div class="card">
+            <h2 style="text-align:center;">Login</h2>
+            <input type="text" id="login-user" placeholder="Matrícula (ID)">
+            <input type="password" id="login-pass" placeholder="Senha">
+            <button onclick="fazerLogin()">Acessar</button>
         </div>
+    </div>
 
-        <div id="screen-menu" class="screen">
-            <div class="card">
-                <div class="nav-header" style="margin-bottom: 10px;">
-                    <div>
-                        <h1 style="font-size: 24px;">Painel de Controle</h1>
-                        <p style="color: var(--text-muted); font-size: 14px;">Escolha uma operação</p>
-                    </div>
-                    <img src="https://www.vli-logistica.com.br/wp-content/uploads/2021/12/Logo_VLI.svg" alt="VLI Logo" class="brand-logo-mini">
-                </div>
-                
-                <div class="menu-grid">
-                    <div class="menu-item" onclick="navigateTo('estoque')">
-                        <i class="fa-solid fa-warehouse"></i>
-                        <h3>Estoque Atual</h3>
-                    </div>
-                    <div class="menu-item" onclick="navigateTo('retirada')">
-                        <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--accent);"></i>
-                        <h3>Fazer Retirada</h3>
-                    </div>
-                    <div class="menu-item" onclick="navigateTo('entrada')">
-                        <i class="fa-solid fa-arrow-down-to-square"></i>
-                        <h3>Realizar Entrada</h3>
-                    </div>
-                    <div class="menu-item" onclick="navigateTo('relatorios')">
-                        <i class="fa-solid fa-receipt"></i>
-                        <h3>Relatórios</h3>
-                    </div>
-                </div>
-
-                <div style="margin-top: 24px; text-align: center;">
-                    <span onclick="navigateTo('login')" style="color: var(--text-muted); font-size: 14px; cursor: pointer; font-weight: 500; transition: 0.2s;">
-                        <i class="fa-solid fa-power-off"></i> Desconectar
-                    </span>
-                </div>
-            </div>
+    <div id="screen-menu" class="screen">
+        <div class="card">
+            <h2>Bem-vindo</h2>
+            <button onclick="navigateTo('retirada')">Fazer Retirada</button>
+            <button onclick="navigateTo('entrada')" style="margin-top:10px;">Realizar Entrada</button>
         </div>
+    </div>
 
-        <div id="screen-estoque" class="screen">
-            <div class="card">
-                <div class="nav-header">
-                    <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Saldo</h2>
-                    <img src="https://www.vli-logistica.com.br/wp-content/uploads/2021/12/Logo_VLI.svg" alt="VLI Logo" class="brand-logo-mini">
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantidade</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-estoque"></tbody>
-                    </table>
-                </div>
-            </div>
+    <div id="screen-retirada" class="screen">
+        <div class="card">
+            <input type="number" id="out-id" placeholder="ID do Item">
+            <input type="number" id="out-qtd" placeholder="Quantidade">
+            <input type="text" id="out-colab" placeholder="Nome/Responsável">
+            <button onclick="confirmarOperacao('Retirada')">Confirmar Saída</button>
         </div>
+    </div>
 
-        <div id="screen-retirada" class="screen">
-            <div class="card" style="max-width: 500px; margin: auto;">
-                <div class="nav-header">
-                    <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--accent);"></i> Retirada</h2>
-                </div>
-                <div class="form-group">
-                    <label>EPI / Item</label>
-                    <select id="select-retirada">
-                        <option value="" disabled selected>Selecione um item...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Quantidade</label>
-                    <input type="number" id="out-qtd" value="1" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Hora e Data da Ocorrência</label>
-                    <input type="datetime-local" id="out-data">
-                </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label>Nome do Colaborador</label>
-                    <input type="text" id="out-colab" placeholder="Quem está retirando?">
-                </div>
-                <button class="btn btn-accent" onclick="confirmarOperacao('Retirada')">Confirmar Saída</button>
-            </div>
+    <div id="screen-entrada" class="screen">
+        <div class="card">
+            <input type="number" id="in-id" placeholder="ID do Item">
+            <input type="number" id="in-qtd" placeholder="Quantidade">
+            <input type="text" id="in-ref" placeholder="Referência/Nota">
+            <button onclick="confirmarOperacao('Entrada')">Confirmar Entrada</button>
         </div>
+    </div>
 
-        <div id="screen-entrada" class="screen">
-            <div class="card" style="max-width: 500px; margin: auto;">
-                <div class="nav-header">
-                    <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-arrow-down-to-square" style="color: var(--primary);"></i> Entrada</h2>
-                </div>
-                <div class="form-group">
-                    <label>EPI / Item</label>
-                    <select id="select-entrada">
-                        <option value="" disabled selected>Selecione um item...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Quantidade</label>
-                    <input type="number" id="in-qtd" value="1" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Hora e Data do Recebimento</label>
-                    <input type="datetime-local" id="in-data">
-                </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label>Nota Fiscal ou Referência</label>
-                    <input type="text" id="in-ref" placeholder="Nº da NF ou Fornecedor">
-                </div>
-                <button class="btn btn-primary" onclick="confirmarOperacao('Entrada')">Confirmar Entrada</button>
-            </div>
-        </div>
+    <script>
+        // --- COLE AQUI SUA URL DO WEB APP ---
+        const URL_GAS = "https://script.google.com/macros/s/AKfycby8ksFqFgWbXwM6yYe2NtT6ciOMSdIKxfNsOEyTKCMTrbINhykPEEphnSpe-MCFZHYs/exec";
+        // ------------------------------------
 
-        <div id="screen-relatorios" class="screen">
-            <div class="card">
-                <div class="nav-header">
-                    <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Movimentações</h2>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data/Hora</th>
-                                <th>Operação</th>
-                                <th>Item</th>
-                                <th>Qtd</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="color: var(--text-muted);">23/05/2026 14:30</td>
-                                <td><span class="badge badge-low" style="color: var(--accent);">Saída</span></td>
-                                <td>Luva Nitrílica (Par)</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-muted);">23/05/2026 09:
+        function navigateTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + screenId).classList.add('active');
+        }
+
+        async function fazerLogin() {
+            const id = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            
+            const response = await fetch(`${URL_GAS}?id=${id}&password=${pass}`);
+            const data = await response.json();
+            
+            if (data.autorizado) {
+                navigateTo('menu');
+            } else {
+                alert("Acesso negado!");
+            }
+        }
+
+        async function confirmarOperacao(tipo) {
+            const prefix = tipo === 'Retirada' ? 'out' : 'in';
+            const payload = {
+                tipo: tipo,
+                idItem: document.getElementById(`${prefix}-id`).value,
+                qtd: document.getElementById(`${prefix}-qtd`).value,
+                responsavel: document.getElementById(tipo === 'Retirada' ? 'out-colab' : 'in-ref').value,
+                dataHora: new Date().toLocaleString()
+            };
+
+            await fetch(URL_GAS, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            alert(tipo + " enviada com sucesso!");
+            navigateTo('menu');
+        }
+    </script>
+</body>
+</html>
