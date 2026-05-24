@@ -1,8 +1,9 @@
-const CACHE_NAME = 'almoxavic-v1';
+const CACHE_NAME = 'almoxavic-v3'; // Atualizado para forçar o celular a ler o logo-pwa.png
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './logo-pwa.png'
 ];
 
 self.addEventListener('install', event => {
