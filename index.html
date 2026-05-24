@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almoxavic | Gestão de EPI</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0068B5">
+    <link rel="apple-touch-icon" href="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +16,8 @@
     
     <style>
         :root {
-            --primary: #0068B5; /* Seu Azul Oficial */
+            --primary: #0068B5; /* Azul VLI */
+            --accent: #EF7A1D;  /* Laranja VLI */
             --bg-dark: #0a111a;
             --bg-card: #111e2f;
             --bg-input: #1a2a40;
@@ -23,236 +29,60 @@
             --radius: 16px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
         body {
             background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 0%, rgba(0, 104, 181, 0.25) 0%, transparent 60%);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 104, 181, 0.15) 0%, transparent 70%);
+            color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px;
         }
 
-        /* Container Geral Responsivo */
-        .app-container {
-            width: 100%;
-            max-width: 800px; /* Limite elegante para PC */
-            margin: auto;
-        }
+        .app-container { width: 100%; max-width: 800px; margin: auto; }
+        .screen { display: none; width: 100%; animation: fadeIn 0.3s ease-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px 24px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+        
+        /* Logos */
+        .brand-logo { max-width: 140px; height: auto; margin-bottom: 16px; display: inline-block; }
+        .brand-logo-mini { max-height: 32px; width: auto; }
 
-        .screen {
-            display: none;
-            width: 100%;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Card Minimalista */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 30px 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Títulos */
-        h1 {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-
-        h2 {
-            font-size: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Inputs e Form Group */
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        input, select {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            border-radius: 10px;
-            color: white;
-            font-size: 15px;
-            outline: none;
-            transition: 0.2s;
-            -webkit-appearance: none; /* Remove seta padrão do iOS */
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 104, 181, 0.3);
-        }
-
-        /* Botões */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: 0.2s;
-            color: white;
-        }
-
+        h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+        h2 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        input, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px; color: white; font-size: 15px; outline: none; transition: 0.2s; -webkit-appearance: none; }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 104, 181, 0.3); }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; color: white; }
         .btn-primary { background: var(--primary); }
         .btn-primary:hover { background: #005696; }
-
-        .btn-success { background: var(--success); }
-        .btn-danger { background: var(--danger); }
-
-        /* Grid do Menu Principal (Totalmente Adaptável) */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 colunas em tablets/PC */
-            gap: 16px;
-            margin-top: 24px;
-        }
-
-        @media (max-width: 480px) {
-            .menu-grid {
-                grid-template-columns: 1fr; /* 1 coluna em celulares pequenos */
-            }
-        }
-
-        .menu-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            padding: 24px 16px;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .menu-item:hover {
-            border-color: var(--primary);
-            background: rgba(0, 104, 181, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .menu-item i {
-            font-size: 26px;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-
-        .menu-item h3 {
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        /* Cabeçalho de Navegação interna */
-        .nav-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 14px;
-        }
-
-        .btn-back {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-back:hover {
-            color: white;
-            border-color: var(--text-muted);
-        }
-
-        /* Tabelas Responsivas com Scroll Lateral se necessário */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
-            min-width: 400px; /* Garante legibilidade no celular */
-        }
-
-        th, td {
-            padding: 12px 16px;
-        }
-
-        th {
-            background: rgba(0, 0, 0, 0.2);
-            color: var(--text-muted);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        tr:not(:last-child) td {
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* Badges */
-        .badge {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .badge-ok { background: rgba(16, 185, 129, 0.12); color: var(--success); }
-        .badge-low { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+        .btn-accent { background: var(--accent); color: #fff; } /* Botão Laranja Elegante */
+        .btn-accent:hover { background: #d96d19; }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
+        @media (max-width: 480px) { .menu-grid { grid-template-columns: 1fr; } }
+        .menu-item { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); padding: 24px 16px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .menu-item:hover { border-color: var(--accent); background: rgba(239, 122, 29, 0.08); transform: translateY(-2px); }
+        .menu-item i { font-size: 26px; color: var(--primary); margin-bottom: 12px; }
+        .menu-item h3 { font-size: 15px; font-weight: 500; }
+        
+        .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+        .btn-back { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-back:hover { color: white; border-color: var(--text-muted); }
+        
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 500px; }
+        th, td { padding: 12px 16px; }
+        th { background: rgba(0, 0, 0, 0.2); color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .badge-ok { background: rgba(0, 104, 181, 0.15); color: #60a5fa; }
+        .badge-low { background: rgba(239, 122, 29, 0.15); color: var(--accent); }
     </style>
 </head>
 <body>
@@ -262,13 +92,13 @@
         <div id="screen-login" class="screen active">
             <div class="card" style="max-width: 380px; margin: auto;">
                 <div style="text-align: center; margin-bottom: 24px;">
-                    <i class="fa-solid fa-cube" style="color: var(--primary); font-size: 42px; margin-bottom: 12px;"></i>
+                    <img src="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png" alt="VLI Logo" class="brand-logo">
                     <h1>Almoxavic</h1>
-                    <p style="color: var(--text-muted); font-size: 13px;">Faça login para gerenciar materiais</p>
+                    <p style="color: var(--text-muted); font-size: 13px;">Gestão Inteligente de EPIs</p>
                 </div>
                 <div class="form-group">
                     <label>Usuário</label>
-                    <input type="text" id="login-user" placeholder="Digite seu usuário">
+                    <input type="text" id="login-user" placeholder="Matrícula ou Usuário">
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label>Senha</label>
@@ -280,9 +110,12 @@
 
         <div id="screen-menu" class="screen">
             <div class="card">
-                <div style="text-align: center; margin-bottom: 10px;">
-                    <h1 style="font-size: 24px;">Painel de Controle</h1>
-                    <p style="color: var(--text-muted); font-size: 14px;">Escolha uma operação abaixo</p>
+                <div class="nav-header" style="margin-bottom: 10px;">
+                    <div>
+                        <h1 style="font-size: 24px;">Painel de Controle</h1>
+                        <p style="color: var(--text-muted); font-size: 14px;">Escolha uma operação</p>
+                    </div>
+                    <img src="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png" alt="VLI Logo" class="brand-logo-mini">
                 </div>
                 
                 <div class="menu-grid">
@@ -291,7 +124,7 @@
                         <h3>Estoque Atual</h3>
                     </div>
                     <div class="menu-item" onclick="navigateTo('retirada')">
-                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        <i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--accent);"></i>
                         <h3>Fazer Retirada</h3>
                     </div>
                     <div class="menu-item" onclick="navigateTo('entrada')">
@@ -305,7 +138,7 @@
                 </div>
 
                 <div style="margin-top: 24px; text-align: center;">
-                    <span onclick="navigateTo('login')" style="color: var(--danger); font-size: 14px; cursor: pointer; font-weight: 500;">
+                    <span onclick="navigateTo('login')" style="color: var(--text-muted); font-size: 14px; cursor: pointer; font-weight: 500; transition: 0.2s;">
                         <i class="fa-solid fa-power-off"></i> Desconectar
                     </span>
                 </div>
@@ -316,7 +149,8 @@
             <div class="card">
                 <div class="nav-header">
                     <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Saldo em Estoque</h2>
+                    <h2><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Saldo</h2>
+                    <img src="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png" alt="VLI Logo" class="brand-logo-mini">
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -337,21 +171,27 @@
             <div class="card" style="max-width: 500px; margin: auto;">
                 <div class="nav-header">
                     <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--danger);"></i> Retirada</h2>
+                    <h2><i class="fa-solid fa-arrow-up-from-bracket" style="color: var(--accent);"></i> Retirada</h2>
                 </div>
                 <div class="form-group">
                     <label>EPI / Item</label>
-                    <select id="select-retirada"></select>
+                    <select id="select-retirada">
+                        <option value="" disabled selected>Selecione um item...</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Quantidade</label>
                     <input type="number" id="out-qtd" value="1" min="1">
                 </div>
+                <div class="form-group">
+                    <label>Data e Hora da Ocorrência</label>
+                    <input type="datetime-local" id="out-data">
+                </div>
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label>Nome do Colaborador</label>
                     <input type="text" id="out-colab" placeholder="Quem está retirando?">
                 </div>
-                <button class="btn btn-danger" onclick="confirmarOperacao('Retirada')">Confirmar Saída</button>
+                <button class="btn btn-accent" onclick="confirmarOperacao('Retirada')">Confirmar Saída</button>
             </div>
         </div>
 
@@ -359,21 +199,27 @@
             <div class="card" style="max-width: 500px; margin: auto;">
                 <div class="nav-header">
                     <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-arrow-down-to-square" style="color: var(--success);"></i> Entrada</h2>
+                    <h2><i class="fa-solid fa-arrow-down-to-square" style="color: var(--primary);"></i> Entrada</h2>
                 </div>
                 <div class="form-group">
                     <label>EPI / Item</label>
-                    <select id="select-entrada"></select>
+                    <select id="select-entrada">
+                        <option value="" disabled selected>Selecione um item...</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Quantidade</label>
                     <input type="number" id="in-qtd" value="1" min="1">
                 </div>
+                <div class="form-group">
+                    <label>Data e Hora do Recebimento</label>
+                    <input type="datetime-local" id="in-data">
+                </div>
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label>Nota Fiscal ou Referência</label>
                     <input type="text" id="in-ref" placeholder="Nº da NF ou Fornecedor">
                 </div>
-                <button class="btn btn-success" onclick="confirmarOperacao('Entrada')">Confirmar Entrada</button>
+                <button class="btn btn-primary" onclick="confirmarOperacao('Entrada')">Confirmar Entrada</button>
             </div>
         </div>
 
@@ -381,13 +227,13 @@
             <div class="card">
                 <div class="nav-header">
                     <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-                    <h2><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Histórico de Movimentações</h2>
+                    <h2><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Movimentações</h2>
                 </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Data</th>
+                                <th>Data/Hora</th>
                                 <th>Operação</th>
                                 <th>Item</th>
                                 <th>Qtd</th>
@@ -395,13 +241,13 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="color: var(--text-muted);">23/05/2026</td>
-                                <td><span class="badge badge-low">Saída</span></td>
+                                <td style="color: var(--text-muted);">23/05/2026 14:30</td>
+                                <td><span class="badge badge-low" style="color: var(--accent);">Saída</span></td>
                                 <td>Luva Nitrílica (Par)</td>
                                 <td>3</td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">23/05/2026</td>
+                                <td style="color: var(--text-muted);">23/05/2026 09:15</td>
                                 <td><span class="badge badge-ok">Entrada</span></td>
                                 <td>Óculos de Proteção Uvex</td>
                                 <td>30</td>
@@ -415,6 +261,13 @@
     </div>
 
     <script>
+        // Registrando o Service Worker para habilitar a instalação no celular
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => {
+                console.log('Service Worker Registrado!');
+            });
+        }
+
         // Banco local temporário
         const estoqueDB = [
             { id: 1, nome: "Óculos de Proteção Uvex", qtd: 38 },
@@ -423,7 +276,6 @@
             { id: 4, nome: "Protetor Auricular 3M", qtd: 105 }
         ];
 
-        // Navegação de Telas Simplificada
         function navigateTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + screenId).classList.add('active');
@@ -438,19 +290,38 @@
                 <tr>
                     <td><strong>${item.nome}</strong></td>
                     <td style="font-variant-numeric: tabular-nums;">${item.qtd} un</td>
-                    <td><span class="badge ${item.qtd > 10 ? 'badge-ok' : 'badge-low'}">${item.qtd > 10 ? 'Disponível' : 'Baixo'}</span></td>
+                    <td><span class="badge ${item.qtd > 10 ? 'badge-ok' : 'badge-low'}">${item.qtd > 10 ? 'Disponível' : 'Atenção'}</span></td>
                 </tr>
             `).join('');
         }
 
         function carregarDropdowns() {
+            const defaultOption = `<option value="" disabled selected>Selecione um item...</option>`;
             const options = estoqueDB.map(item => `<option value="${item.id}">${item.nome}</option>`).join('');
-            document.getElementById('select-retirada').innerHTML = options;
-            document.getElementById('select-entrada').innerHTML = options;
+            
+            // Verifica se está vazio para não duplicar, mas garante a opção limpa
+            document.getElementById('select-retirada').innerHTML = defaultOption + options;
+            document.getElementById('select-entrada').innerHTML = defaultOption + options;
+            
+            // Preenche os campos de data com o horário atual automaticamente
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const currentDateTime = now.toISOString().slice(0,16);
+            document.getElementById('out-data').value = currentDateTime;
+            document.getElementById('in-data').value = currentDateTime;
         }
 
         function confirmarOperacao(tipo) {
-            alert(tipo + " registrada com sucesso com a lógica local!");
+            alert(tipo + " registrada com sucesso!");
+            
+            // Limpa os campos de seleção garantindo que o próximo cadastro inicie do zero
+            document.getElementById('select-retirada').value = "";
+            document.getElementById('select-entrada').value = "";
+            document.getElementById('out-colab').value = "";
+            document.getElementById('in-ref').value = "";
+            document.getElementById('out-qtd').value = "1";
+            document.getElementById('in-qtd').value = "1";
+            
             navigateTo('menu');
         }
     </script>
