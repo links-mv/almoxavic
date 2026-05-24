@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0068B5">
-    <link rel="apple-touch-icon" href="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png">
+    <link rel="apple-touch-icon" href="logo-pwa.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,8 +45,8 @@
         .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px 24px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
         
         /* Logos */
-        .brand-logo { max-width: 140px; height: auto; margin-bottom: 16px; display: inline-block; }
-        .brand-logo-mini { max-height: 32px; width: auto; }
+        .brand-logo { max-width: 140px; height: auto; margin-bottom: 16px; display: inline-block; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3)); }
+        .brand-logo-mini { max-height: 32px; width: auto; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3)); }
 
         h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
         h2 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
@@ -60,14 +60,15 @@
         .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; color: white; }
         .btn-primary { background: var(--primary); }
         .btn-primary:hover { background: #005696; }
-        .btn-accent { background: var(--accent); color: #fff; } /* Botão Laranja Elegante */
+        .btn-accent { background: var(--accent); color: #fff; }
         .btn-accent:hover { background: #d96d19; }
         
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
         @media (max-width: 480px) { .menu-grid { grid-template-columns: 1fr; } }
         .menu-item { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); padding: 24px 16px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
         .menu-item:hover { border-color: var(--accent); background: rgba(239, 122, 29, 0.08); transform: translateY(-2px); }
-        .menu-item i { font-size: 26px; color: var(--primary); margin-bottom: 12px; }
+        .menu-item i { font-size: 26px; color: var(--primary); margin-bottom: 12px; transition: 0.2s; }
+        .menu-item:hover i { color: var(--accent); }
         .menu-item h3 { font-size: 15px; font-weight: 500; }
         
         .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
@@ -92,7 +93,7 @@
         <div id="screen-login" class="screen active">
             <div class="card" style="max-width: 380px; margin: auto;">
                 <div style="text-align: center; margin-bottom: 24px;">
-                    <img src="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png" alt="VLI Logo" class="brand-logo">
+                    <img src="https://www.vli-logistica.com.br/wp-content/uploads/2021/12/Logo_VLI.svg" alt="VLI Logo" class="brand-logo">
                     <h1>Almoxavic</h1>
                     <p style="color: var(--text-muted); font-size: 13px;">Gestão Inteligente de EPIs</p>
                 </div>
@@ -115,7 +116,7 @@
                         <h1 style="font-size: 24px;">Painel de Controle</h1>
                         <p style="color: var(--text-muted); font-size: 14px;">Escolha uma operação</p>
                     </div>
-                    <img src="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png" alt="VLI Logo" class="brand-logo-mini">
+                    <img src="https://www.vli-logistica.com.br/wp-content/uploads/2021/12/Logo_VLI.svg" alt="VLI Logo" class="brand-logo-mini">
                 </div>
                 
                 <div class="menu-grid">
@@ -150,7 +151,7 @@
                 <div class="nav-header">
                     <button class="btn-back" onclick="navigateTo('menu')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                     <h2><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Saldo</h2>
-                    <img src="https://logodownload.org/wp-content/uploads/2019/09/vli-logistica-logo.png" alt="VLI Logo" class="brand-logo-mini">
+                    <img src="https://www.vli-logistica.com.br/wp-content/uploads/2021/12/Logo_VLI.svg" alt="VLI Logo" class="brand-logo-mini">
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -184,7 +185,7 @@
                     <input type="number" id="out-qtd" value="1" min="1">
                 </div>
                 <div class="form-group">
-                    <label>Data e Hora da Ocorrência</label>
+                    <label>Hora e Data da Ocorrência</label>
                     <input type="datetime-local" id="out-data">
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
@@ -212,7 +213,7 @@
                     <input type="number" id="in-qtd" value="1" min="1">
                 </div>
                 <div class="form-group">
-                    <label>Data e Hora do Recebimento</label>
+                    <label>Hora e Data do Recebimento</label>
                     <input type="datetime-local" id="in-data">
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
@@ -247,83 +248,4 @@
                                 <td>3</td>
                             </tr>
                             <tr>
-                                <td style="color: var(--text-muted);">23/05/2026 09:15</td>
-                                <td><span class="badge badge-ok">Entrada</span></td>
-                                <td>Óculos de Proteção Uvex</td>
-                                <td>30</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        // Registrando o Service Worker para habilitar a instalação no celular
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => {
-                console.log('Service Worker Registrado!');
-            });
-        }
-
-        // Banco local temporário
-        const estoqueDB = [
-            { id: 1, nome: "Óculos de Proteção Uvex", qtd: 38 },
-            { id: 2, nome: "Luva Nitrílica (Par)", qtd: 8 },
-            { id: 3, nome: "Capacete com Carneira", qtd: 14 },
-            { id: 4, nome: "Protetor Auricular 3M", qtd: 105 }
-        ];
-
-        function navigateTo(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-' + screenId).classList.add('active');
-            
-            if (screenId === 'estoque') carregarEstoque();
-            if (screenId === 'retirada' || screenId === 'entrada') carregarDropdowns();
-        }
-
-        function carregarEstoque() {
-            const container = document.getElementById('data-estoque');
-            container.innerHTML = estoqueDB.map(item => `
-                <tr>
-                    <td><strong>${item.nome}</strong></td>
-                    <td style="font-variant-numeric: tabular-nums;">${item.qtd} un</td>
-                    <td><span class="badge ${item.qtd > 10 ? 'badge-ok' : 'badge-low'}">${item.qtd > 10 ? 'Disponível' : 'Atenção'}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        function carregarDropdowns() {
-            const defaultOption = `<option value="" disabled selected>Selecione um item...</option>`;
-            const options = estoqueDB.map(item => `<option value="${item.id}">${item.nome}</option>`).join('');
-            
-            // Verifica se está vazio para não duplicar, mas garante a opção limpa
-            document.getElementById('select-retirada').innerHTML = defaultOption + options;
-            document.getElementById('select-entrada').innerHTML = defaultOption + options;
-            
-            // Preenche os campos de data com o horário atual automaticamente
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            const currentDateTime = now.toISOString().slice(0,16);
-            document.getElementById('out-data').value = currentDateTime;
-            document.getElementById('in-data').value = currentDateTime;
-        }
-
-        function confirmarOperacao(tipo) {
-            alert(tipo + " registrada com sucesso!");
-            
-            // Limpa os campos de seleção garantindo que o próximo cadastro inicie do zero
-            document.getElementById('select-retirada').value = "";
-            document.getElementById('select-entrada').value = "";
-            document.getElementById('out-colab').value = "";
-            document.getElementById('in-ref').value = "";
-            document.getElementById('out-qtd').value = "1";
-            document.getElementById('in-qtd').value = "1";
-            
-            navigateTo('menu');
-        }
-    </script>
-</body>
-</html>
+                                <td style="color: var(--text-muted);">23/05/2026 09:
