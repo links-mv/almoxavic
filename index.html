@@ -3,268 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Almoxavic | Gestão de EPI</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#00529b">
-    
+    <title>Almoxavic | Gestão</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root { 
-            --primary: #00529b; 
-            --primary-hover: #003f7a;
-            --accent: #EF7A1D; 
-            --bg-dark: #f0f2f5; 
+            --primary: #004482; 
+            --bg-blue: #00529b; /* Fundo do app azul */
             --bg-card: #ffffff; 
-            --text-main: #333333;
-            --text-light: #666666;
-            --border: #e1e4e8;
+            --accent: #EF7A1D; 
+            --text: #333333;
+            --border: #ddd;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
         
+        /* Centralizando tudo 100% da tela */
         body { 
-            background-color: var(--bg-dark); 
-            color: var(--text-main); 
+            background-color: var(--bg-blue); 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .card { 
             background: var(--bg-card); 
-            padding: 30px; 
+            padding: 25px; 
             border-radius: 12px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             width: 100%;
-            max-width: 400px; 
+            max-width: 420px; 
         }
 
-        .header-logo {
-            text-align: center;
-            margin-bottom: 25px;
-            color: var(--primary);
-        }
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .header-logo i { font-size: 2.5rem; margin-bottom: 10px; }
-        
-        .screen { display: none; animation: fadeIn 0.3s ease; }
-        .screen.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Estilo da Logo */
+        .logo-container { text-align: center; margin-bottom: 20px; }
+        .logo-container img { max-width: 150px; height: auto; }
+        .logo-fallback { font-size: 2rem; color: var(--primary); font-weight: bold; }
 
-        .input-group { position: relative; margin-bottom: 15px; }
-        .input-group i { 
-            position: absolute; 
-            left: 15px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            color: var(--text-light); 
-        }
-        
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
         input, select { 
-            width: 100%; 
-            padding: 14px 14px 14px 45px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            background: #f9fafb; 
-            color: var(--text-main); 
-            font-size: 1rem;
-            transition: all 0.2s;
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 1rem;
         }
-        
-        input:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(0, 82, 155, 0.1); }
         
         button { 
-            width: 100%; 
-            padding: 14px; 
-            background: var(--primary); 
-            border: none; 
-            border-radius: 8px; 
-            color: white; 
-            font-size: 1rem;
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: background 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+            width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white;
+            transition: 0.2s;
         }
+        .btn-primary { background: var(--primary); }
+        .btn-accent { background: var(--accent); }
+        .btn-outline { background: transparent; border: 1px solid #999; color: #555; margin-top: 10px; }
         
-        button:hover { background: var(--primary-hover); }
-        button.btn-accent { background: var(--accent); }
-        button.btn-accent:hover { background: #d66a15; }
-        button.btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); margin-top: 15px; }
-        button.btn-outline:hover { background: var(--primary); color: white; }
-
-        /* Status Toast */
-        #status-message {
-            display: none;
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
+        /* Menu com botões quadrados lado a lado */
+        .menu-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
             margin-bottom: 15px;
-            font-weight: 500;
         }
-        .status-error { background: #fee2e2; color: #991b1b; }
-        .status-success { background: #dcfce7; color: #166534; }
-        .status-loading { background: #e0f2fe; color: #075985; }
+        .menu-btn { 
+            aspect-ratio: 1; /* Força o botão a ser quadrado */
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;
+            font-size: 0.9rem; text-align: center; padding: 10px; background: var(--primary);
+        }
+        .menu-btn i { font-size: 2rem; }
+        .menu-btn.estoque-btn { grid-column: span 2; aspect-ratio: auto; padding: 20px; background: #333; }
+
+        /* Carrinho de Retirada */
+        .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; }
+        .cart-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .cart-remove { color: red; cursor: pointer; font-weight: bold; }
+
+        /* Tabela de Estoque */
+        .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
+        
+        #status-msg { display: none; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 0.9rem;}
+        .loading { background: #e0f2fe; color: #075985; }
+        .error { background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <div class="header-logo">
-            <i class="fa-solid fa-helmet-safety"></i>
-            <h2>Almoxavic</h2>
-            <p style="font-size: 0.85rem; color: #666;">Gestão de EPIs</p>
-        </div>
-
-        <div id="status-message"></div>
+        
+        <div id="status-msg"></div>
 
         <div id="screen-login" class="screen active">
+            <div class="logo-container">
+                <img src="logo-pwa.png" alt="Almoxavic Logo" onerror="this.outerHTML='<div class=\'logo-fallback\'>ALMOXAVIC</div>'">
+            </div>
             <div class="input-group">
-                <i class="fa-solid fa-id-badge"></i>
                 <input type="text" id="login-user" placeholder="Matrícula (ID)">
             </div>
             <div class="input-group">
-                <i class="fa-solid fa-lock"></i>
                 <input type="password" id="login-pass" placeholder="Senha">
             </div>
-            <button onclick="fazerLogin()"><i class="fa-solid fa-right-to-bracket"></i> Acessar</button>
+            <button class="btn-primary" onclick="fazerLogin()">Acessar</button>
         </div>
 
         <div id="screen-menu" class="screen">
-            <button onclick="navigateTo('retirada')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Fazer Retirada</button>
-            <button class="btn-accent" onclick="navigateTo('entrada')" style="margin-top:15px;"><i class="fa-solid fa-arrow-right-to-bracket"></i> Realizar Entrada</button>
-            <button class="btn-outline" onclick="navigateTo('login')"><i class="fa-solid fa-power-off"></i> Sair</button>
+            <h3 style="margin-bottom: 15px; text-align:center; color: var(--primary);">Painel de Controle</h3>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="abrirTela('retirada')">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Retirada
+                </button>
+                <button class="menu-btn btn-accent" onclick="abrirTela('entrada')">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada
+                </button>
+                <button class="menu-btn estoque-btn" onclick="abrirTela('estoque')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Visualizar Estoque
+                </button>
+            </div>
+            <button class="btn-outline" onclick="abrirTela('login')">Sair</button>
         </div>
 
         <div id="screen-retirada" class="screen">
-            <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">Saída de EPI</h3>
+            <h3 style="margin-bottom: 15px; text-align:center;">Retirada de Materiais</h3>
+            
             <div class="input-group">
-                <i class="fa-solid fa-box"></i>
-                <input type="number" id="out-id" placeholder="ID do Item">
+                <label>Para quem? (Nome ou Matrícula)</label>
+                <input type="text" id="out-quem" placeholder="Ex: João Silva ou 106982">
             </div>
+            <hr style="border: 0.5px solid #eee; margin: 15px 0;">
+            
             <div class="input-group">
-                <i class="fa-solid fa-hashtag"></i>
-                <input type="number" id="out-qtd" placeholder="Quantidade">
+                <label>Item</label>
+                <select id="out-item" class="select-items"></select>
             </div>
-            <div class="input-group">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="out-colab" placeholder="Nome/Responsável">
+            <div class="input-group" style="display:flex; gap:10px;">
+                <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
+                <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho()">+ Adicionar Item</button>
             </div>
-            <button onclick="confirmarOperacao('Retirada')"><i class="fa-solid fa-check"></i> Confirmar Saída</button>
-            <button class="btn-outline" onclick="navigateTo('menu')">Voltar</button>
+            
+            <label style="font-size: 0.85rem; color:#555;">Itens a retirar:</label>
+            <div class="cart-box" id="cart-list">
+                <span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>
+            </div>
+
+            <button class="btn-accent" onclick="confirmarRetirada()">Confirmar Retirada</button>
+            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-entrada" class="screen">
-            <h3 style="margin-bottom: 15px; text-align: center; color: var(--accent);">Entrada de EPI</h3>
+            <h3 style="margin-bottom: 15px; text-align:center;">Entrada de Materiais</h3>
+            
             <div class="input-group">
-                <i class="fa-solid fa-box"></i>
-                <input type="number" id="in-id" placeholder="ID do Item">
+                <label>Selecione o Item</label>
+                <select id="in-item" class="select-items" onchange="verificarNovoItem()"></select>
+            </div>
+            
+            <div class="input-group" id="box-novo-item" style="display:none;">
+                <label style="color:var(--accent);">Nome do Novo Item</label>
+                <input type="text" id="in-novo-nome" placeholder="Ex: Capacete Azul">
+            </div>
+
+            <div class="input-group">
+                <label>Quantidade</label>
+                <input type="number" id="in-qtd" placeholder="Qtd">
             </div>
             <div class="input-group">
-                <i class="fa-solid fa-hashtag"></i>
-                <input type="number" id="in-qtd" placeholder="Quantidade">
+                <label>Referência/Nota Fiscal</label>
+                <input type="text" id="in-ref" placeholder="NF 12345 (Opcional)">
             </div>
-            <div class="input-group">
-                <i class="fa-solid fa-file-invoice"></i>
-                <input type="text" id="in-ref" placeholder="Referência/Nota">
+            <button class="btn-accent" onclick="confirmarEntrada()">Registrar Entrada</button>
+            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+        </div>
+
+        <div id="screen-estoque" class="screen">
+            <h3 style="margin-bottom: 15px; text-align:center;">Estoque Atual</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="stock-table">
+                    <thead><tr><th>Item</th><th>Qtd</th></tr></thead>
+                    <tbody id="stock-tbody"></tbody>
+                </table>
             </div>
-            <button class="btn-accent" onclick="confirmarOperacao('Entrada')"><i class="fa-solid fa-check"></i> Confirmar Entrada</button>
-            <button class="btn-outline" onclick="navigateTo('menu')">Voltar</button>
+            <button class="btn-primary" onclick="carregarDados()">Atualizar Tabela</button>
+            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
     </div>
 
     <script>
         // --- COLE AQUI SUA URL DO WEB APP ---
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbwGEVPy-SUAsQi_HNd1y6JDMqRl4BSrDmofxO23ODEi5GAOb08gJijVHjm2vtJN2dza/exec";
-        // ------------------------------------
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbyH8l26oJrtjxaRPzFpLpb14xDcozb5fx_pKTgmeKQp6OU5pQ1IDnOAx2-eYsHivbZhLQ/exec";
+        
+        let baseItems = [];
+        let stockItems = [];
+        let carrinhoRetirada = [];
 
-        function navigateTo(screenId) {
+        function msg(texto, tipo) {
+            const el = document.getElementById('status-msg');
+            el.textContent = texto; el.className = tipo; el.style.display = 'block';
+            if(tipo === 'error') setTimeout(() => el.style.display = 'none', 4000);
+        }
+
+        function abrirTela(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-' + screenId).classList.add('active');
-            limparInputs();
-            esconderStatus();
-        }
-
-        function mostrarStatus(mensagem, tipo) {
-            const statusDiv = document.getElementById('status-message');
-            statusDiv.textContent = mensagem;
-            statusDiv.className = `status-${tipo}`;
-            statusDiv.style.display = 'block';
-        }
-
-        function esconderStatus() {
-            document.getElementById('status-message').style.display = 'none';
-        }
-
-        function limparInputs() {
-            document.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('screen-' + id).classList.add('active');
+            document.getElementById('status-msg').style.display = 'none';
         }
 
         async function fazerLogin() {
             const id = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
-            
-            if(!id || !pass) return mostrarStatus("Preencha todos os campos!", "error");
+            if(!id || !pass) return msg("Preencha matrícula e senha!", "error");
 
-            mostrarStatus("Autenticando...", "loading");
-
+            msg("Autenticando...", "loading");
             try {
-                const response = await fetch(`${URL_GAS}?id=${id}&password=${pass}`);
-                const data = await response.json();
-                
+                const res = await fetch(`${URL_GAS}?action=login&id=${id}&password=${pass}`);
+                const data = await res.json();
                 if (data.autorizado) {
-                    navigateTo('menu');
+                    abrirTela('menu');
+                    carregarDados(); // Puxa Base e Estoque ao logar
                 } else {
-                    mostrarStatus("Matrícula ou senha incorretos!", "error");
+                    msg("Acesso Negado!", "error");
                 }
-            } catch (error) {
-                mostrarStatus("Erro de conexão.", "error");
-            }
+            } catch(e) { msg("Erro de rede.", "error"); }
         }
 
-        async function confirmarOperacao(tipo) {
-            const prefix = tipo === 'Retirada' ? 'out' : 'in';
-            const idItem = document.getElementById(`${prefix}-id`).value;
-            const qtd = document.getElementById(`${prefix}-qtd`).value;
-            const responsavel = document.getElementById(tipo === 'Retirada' ? 'out-colab' : 'in-ref').value;
+        // Puxa as planilhas Base e Estoque e monta os Selects e Tabela
+        async function carregarDados() {
+            msg("Atualizando sistema...", "loading");
+            try {
+                const res = await fetch(`${URL_GAS}?action=getData`);
+                const data = await res.json();
+                baseItems = data.base;
+                stockItems = data.estoque;
+                
+                atualizarDropdowns();
+                atualizarTabelaEstoque();
+                msg("", "");
+                document.getElementById('status-msg').style.display = 'none';
+            } catch(e) { msg("Erro ao carregar itens.", "error"); }
+        }
 
-            if(!idItem || !qtd || !responsavel) {
-                return mostrarStatus("Preencha todos os campos!", "error");
+        function atualizarDropdowns() {
+            let options = '<option value="">-- Escolha --</option>';
+            baseItems.forEach(i => options += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
+            
+            document.getElementById('out-item').innerHTML = options;
+            
+            // Na entrada, adiciona a opção de Novo Item no final
+            document.getElementById('in-item').innerHTML = options + '<option value="NOVO_ITEM">+ Adicionar Novo Item</option>';
+        }
+
+        function atualizarTabelaEstoque() {
+            const tbody = document.getElementById('stock-tbody');
+            tbody.innerHTML = '';
+            
+            stockItems.forEach(stk => {
+                // Procura o nome do item na base
+                const itemBase = baseItems.find(b => b.id == stk.id);
+                const nome = itemBase ? itemBase.nome : `Item ${stk.id}`;
+                tbody.innerHTML += `<tr><td>${nome}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+            });
+        }
+
+        // LÓGICA DO CARRINHO DE RETIRADA
+        function adicionarAoCarrinho() {
+            const select = document.getElementById('out-item');
+            const qtd = parseInt(document.getElementById('out-qtd').value);
+            const idItem = select.value;
+            
+            if(!idItem || !qtd || qtd < 1) return msg("Selecione um item e qtd > 0.", "error");
+            
+            const nomeItem = select.options[select.selectedIndex].text;
+            carrinhoRetirada.push({ idItem: idItem, nomeItem: nomeItem, qtd: qtd });
+            
+            document.getElementById('out-qtd').value = '';
+            renderizarCarrinho();
+        }
+
+        function removerDoCarrinho(index) {
+            carrinhoRetirada.splice(index, 1);
+            renderizarCarrinho();
+        }
+
+        function renderizarCarrinho() {
+            const div = document.getElementById('cart-list');
+            if(carrinhoRetirada.length === 0) {
+                div.innerHTML = '<span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>';
+                return;
             }
+            let html = '';
+            carrinhoRetirada.forEach((item, index) => {
+                html += `<div class="cart-item">
+                    <span>${item.qtd}x ${item.nomeItem}</span>
+                    <span class="cart-remove" onclick="removerDoCarrinho(${index})">X</span>
+                </div>`;
+            });
+            div.innerHTML = html;
+        }
 
-            mostrarStatus("Processando...", "loading");
+        async function confirmarRetirada() {
+            const paraQuem = document.getElementById('out-quem').value;
+            if(!paraQuem) return msg("Informe para quem é a retirada.", "error");
+            if(carrinhoRetirada.length === 0) return msg("Adicione itens ao carrinho.", "error");
 
+            msg("Registrando retirada...", "loading");
+            
             const payload = {
-                tipo: tipo,
-                idItem: idItem,
-                qtd: qtd,
-                responsavel: responsavel,
-                dataHora: new Date().toLocaleString('pt-BR')
+                tipo: 'Retirada',
+                dataHora: new Date().toLocaleString('pt-BR'),
+                paraQuem: paraQuem,
+                carrinho: carrinhoRetirada
             };
 
+            await enviarPost(payload);
+            carrinhoRetirada = []; // limpa o carrinho
+            renderizarCarrinho();
+            document.getElementById('out-quem').value = '';
+        }
+
+        // LÓGICA DE ENTRADA
+        function verificarNovoItem() {
+            const val = document.getElementById('in-item').value;
+            document.getElementById('box-novo-item').style.display = (val === 'NOVO_ITEM') ? 'block' : 'none';
+        }
+
+        async function confirmarEntrada() {
+            const valItem = document.getElementById('in-item').value;
+            const qtd = document.getElementById('in-qtd').value;
+            const ref = document.getElementById('in-ref').value;
+            const nomeNovo = document.getElementById('in-novo-nome').value;
+
+            if(!valItem || !qtd) return msg("Preencha item e quantidade.", "error");
+            if(valItem === 'NOVO_ITEM' && !nomeNovo) return msg("Dê um nome ao novo item.", "error");
+
+            msg("Registrando entrada...", "loading");
+
+            const payload = {
+                tipo: 'Entrada',
+                dataHora: new Date().toLocaleString('pt-BR'),
+                qtd: qtd,
+                referencia: ref,
+                idItem: (valItem !== 'NOVO_ITEM') ? valItem : null,
+                isNovoItem: (valItem === 'NOVO_ITEM'),
+                nomeNovoItem: nomeNovo
+            };
+
+            await enviarPost(payload);
+            document.getElementById('in-qtd').value = '';
+            document.getElementById('in-ref').value = '';
+            document.getElementById('in-novo-nome').value = '';
+            document.getElementById('in-item').value = '';
+            verificarNovoItem();
+        }
+
+        // ENVIAR DADOS
+        async function enviarPost(payload) {
             try {
-                // Usando text/plain para evitar problemas de CORS no Google Apps Script
                 await fetch(URL_GAS, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-
-                alert(tipo + " registrada com sucesso!");
-                navigateTo('menu');
-            } catch (error) {
-                mostrarStatus("Erro ao registrar operação.", "error");
+                
+                alert("Operação realizada com sucesso!");
+                carregarDados(); // Atualiza a base para pegar novos itens e estoque atualizado
+                abrirTela('menu');
+            } catch(e) {
+                msg("Erro ao registrar no Sheets.", "error");
             }
         }
     </script>
