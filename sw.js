@@ -1,4 +1,4 @@
-const CACHE_NAME = 'almoxavic-v3'; // Atualizado para forçar o celular a ler o logo-pwa.png
+const CACHE_NAME = 'almoxavic-v4';
 const urlsToCache = [
   './',
   './index.html',
