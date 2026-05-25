@@ -8,7 +8,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00529b">
     <link rel="apple-touch-icon" href="logo-pwa.png">
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -21,65 +20,36 @@
             --dark: #222222;
             --danger: #dc2626;
             --warning: #d97706;
+            --success: #16a34a;
             --border: #ddd;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-blue); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
         
-        body { 
-            background-color: var(--bg-blue); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh;
-            padding: 15px;
-        }
-
-        .card { 
-            background: var(--bg-card); 
-            padding: 25px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-            width: 100%;
-            max-width: 420px; 
-        }
-
+        .card { background: var(--bg-card); padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 420px; position: relative; }
         .screen { display: none; }
         .screen.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         .logo-container { text-align: center; margin-bottom: 20px; }
         .logo-container img { max-width: 150px; height: auto; }
-        .logo-fallback { font-size: 2rem; color: var(--primary); font-weight: bold; }
-
+        
+        .user-greeting { text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--primary); margin-bottom: 20px; }
+        
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
-        input, select { 
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 1rem;
-        }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 1rem; }
         
-        button { 
-            width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white;
-            transition: 0.2s;
-        }
+        button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
         button:hover { opacity: 0.9; }
         .btn-primary { background: var(--primary); }
         .btn-accent { background: var(--accent); }
         .btn-dark { background: var(--dark); }
         .btn-outline { background: transparent; border: 1px solid #999; color: #555; margin-top: 10px; }
         
-        /* Menu com Grid Perfeito 2x2 de Botões Quadrados */
-        .menu-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px; 
-            margin-bottom: 15px;
-        }
-        .menu-btn { 
-            aspect-ratio: 1; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;
-            font-size: 0.85rem; text-align: center; padding: 10px; background: var(--primary);
-        }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .menu-btn { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; font-size: 0.85rem; text-align: center; padding: 10px; background: var(--primary); }
         .menu-btn i { font-size: 2rem; }
 
         .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; max-height: 140px; overflow-y: auto; }
@@ -89,15 +59,17 @@
         .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
         
-        /* Listas de alertas e relatórios */
-        .report-section { margin-bottom: 20px; }
-        .report-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .badge-danger { color: var(--danger); }
-        .badge-warning { color: var(--warning); }
-        .report-list { list-style: none; font-size: 0.9rem; background: #fdfdfd; padding: 5px 10px; border-radius: 6px; border: 1px solid #f0f0f0; }
-        .report-list li { padding: 6px 0; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; }
-        .report-list li:last-child { border: none; }
-
+        /* Modal Customizado (Substitui o Alert) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .report-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .report-tabs button { padding: 8px; font-size: 0.8rem; background: #e0e0e0; color: #333; }
+        .report-tabs button.active { background: var(--primary); color: white; }
+        .report-list { list-style: none; font-size: 0.9rem; max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
+        .report-list li { padding: 10px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; }
+        
         #status-msg { display: none; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 0.9rem;}
         .loading { background: #e0f2fe; color: #075985; }
         .error { background: #fee2e2; color: #991b1b; }
@@ -106,50 +78,32 @@
 <body>
 
     <div class="card">
-        
         <div id="status-msg"></div>
 
-        <div id="screen-login" class="screen active">
-            <div class="logo-container">
-                <img src="logo-pwa.png" alt="Almoxavic Logo" onerror="this.outerHTML='<div class=\'logo-fallback\'>ALMOXAVIC</div>'">
-            </div>
-            <div class="input-group">
-                <input type="text" id="login-user" placeholder="Matrícula (ID)">
-            </div>
-            <div class="input-group">
-                <input type="password" id="login-pass" placeholder="Senha">
-            </div>
+        <div id="screen-login" class="screen">
+            <div class="logo-container"><img src="logo-pwa.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
+            <div class="input-group"><input type="text" id="login-user" placeholder="Matrícula (ID)"></div>
+            <div class="input-group"><input type="password" id="login-pass" placeholder="Senha"></div>
             <button class="btn-primary" onclick="fazerLogin()">Acessar</button>
         </div>
 
         <div id="screen-menu" class="screen">
-            <h3 style="margin-bottom: 15px; text-align:center; color: var(--primary);">Painel de Controle</h3>
+            <div class="user-greeting" id="saudacao-user">Boa tarde, Usuário</div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="abrirTela('retirada')">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Retirada
-                </button>
-                <button class="menu-btn btn-accent" onclick="abrirTela('entrada')">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada
-                </button>
-                <button class="menu-btn btn-dark" onclick="abrirTela('estoque')">
-                    <i class="fa-solid fa-boxes-stacked"></i> Estoque Atual
-                </button>
-                <button class="menu-btn" style="background:#4b5563;" onclick="abrirTela('relatorios')">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> Relatórios
-                </button>
+                <button class="menu-btn" onclick="abrirTela('retirada')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Retirada</button>
+                <button class="menu-btn btn-accent" onclick="abrirTela('entrada')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada</button>
+                <button class="menu-btn btn-dark" onclick="abrirTela('estoque')"><i class="fa-solid fa-boxes-stacked"></i> Estoque Atual</button>
+                <button class="menu-btn" style="background:#4b5563;" onclick="abrirTela('relatorios')"><i class="fa-solid fa-chart-pie"></i> Relatórios</button>
             </div>
-            <button class="btn-outline" onclick="deslogar()">Sair</button>
+            <button class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
         </div>
 
         <div id="screen-retirada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Retirada de Materiais</h3>
-            
             <div class="input-group">
-                <label>Matrícula de quem está retirando</label>
-                <input type="text" id="out-quem" placeholder="Digite apenas a matrícula">
+                <label>Para quem? (Matrícula/Nome)</label>
+                <input type="text" id="out-quem" placeholder="Digite quem está recebendo">
             </div>
-            <hr style="border: 0.5px solid #eee; margin: 15px 0;">
-            
             <div class="input-group">
                 <label>Item (Apenas disponíveis)</label>
                 <select id="out-item"></select>
@@ -158,39 +112,19 @@
                 <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
                 <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho('Retirada')">+ Adicionar</button>
             </div>
-            
             <label style="font-size: 0.85rem; color:#555;">Lista de Retirada:</label>
-            <div class="cart-box" id="cart-list-out">
-                <span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>
-            </div>
-
+            <div class="cart-box" id="cart-list-out"><span style="color:#999; font-size: 0.8rem;">Vazio...</span></div>
             <button class="btn-accent" onclick="confirmarProcesso('Retirada')">Confirmar Retirada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-entrada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Entrada de Materiais</h3>
-            
-            <div class="input-group">
-                <label>Selecione o Item</label>
-                <select id="in-item" onchange="verificarNovoItem()"></select>
-            </div>
-            
-            <div class="input-group" id="box-novo-item" style="display:none;">
-                <label style="color:var(--accent);">Nome do Novo Item</label>
-                <input type="text" id="in-novo-nome" placeholder="Ex: Calça Reforçada 48">
-            </div>
-
-            <div class="input-group" style="display:flex; gap:10px;">
-                <input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;">
-                <button class="btn-accent" style="width: 60%;" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button>
-            </div>
-            
+            <div class="input-group"><label>Selecione o Item</label><select id="in-item" onchange="verificarNovoItem()"></select></div>
+            <div class="input-group" id="box-novo-item" style="display:none;"><label style="color:var(--accent);">Nome Novo Item</label><input type="text" id="in-novo-nome"></div>
+            <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button class="btn-accent" style="width: 60%;" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
             <label style="font-size: 0.85rem; color:#555;">Lista de Entrada:</label>
-            <div class="cart-box" id="cart-list-in">
-                <span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>
-            </div>
-            
+            <div class="cart-box" id="cart-list-in"><span style="color:#999; font-size: 0.8rem;">Vazio...</span></div>
             <button class="btn-primary" onclick="confirmarProcesso('Entrada')">Registrar Entrada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
@@ -198,45 +132,49 @@
         <div id="screen-estoque" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Estoque Disponível</h3>
             <div style="max-height: 300px; overflow-y: auto;">
-                <table class="stock-table">
-                    <thead><tr><th>Item</th><th>Qtd</th></tr></thead>
-                    <tbody id="stock-tbody"></tbody>
-                </table>
+                <table class="stock-table"><thead><tr><th>Item</th><th>Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
             </div>
-            <button class="btn-primary" onclick="carregarDados()">Atualizar Lista</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-relatorios" class="screen">
-            <h3 style="margin-bottom: 20px; text-align:center;">Relatório Crítico</h3>
-            
-            <div class="report-section">
-                <div class="report-title badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> Itens em Falta (Zeradados)</div>
-                <ul class="report-list" id="report-falta">
-                    <li><span style="color:#999">Nenhum item zerado</span></li>
-                </ul>
+            <h3 style="margin-bottom: 15px; text-align:center;">Análise de Estoque</h3>
+            <div class="report-tabs">
+                <button id="btn-rel-falta" onclick="gerarRelatorio('falta')">Em Falta</button>
+                <button id="btn-rel-baixo" onclick="gerarRelatorio('baixo')">Baixo (< 5)</button>
+                <button id="btn-rel-tudo" onclick="gerarRelatorio('tudo')">Tudo q/ Tem</button>
             </div>
+            <ul class="report-list" id="report-view"></ul>
+            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+        </div>
+    </div>
 
-            <div class="report-section">
-                <div class="report-title badge-warning"><i class="fa-solid fa-circle-exclamation"></i> Itens Acabando (Até 5 un.)</div>
-                <ul class="report-list" id="report-acabando">
-                    <li><span style="color:#999">Nenhum item acabando</span></li>
-                </ul>
-            </div>
-
-            <button class="btn-outline" onclick="abrirTela('menu')">Voltar ao Painel</button>
+    <div id="modal-sucesso" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <i class="fa-solid fa-circle-check" style="color: var(--success); font-size: 4rem; margin-bottom: 10px;"></i>
+            <h2 style="color: var(--dark); margin-bottom: 10px;">Sucesso!</h2>
+            <p id="modal-msg-texto" style="color: #555; margin-bottom: 20px;">Lote registrado com sucesso.</p>
+            <button class="btn-primary" onclick="fecharModal()">OK, Continuar</button>
         </div>
     </div>
 
     <script>
         // --- COLE AQUI SUA URL DO WEB APP ---
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbywJfVCH3QGkEy7B4452CQ0UaME6vxU_l-mFJQUlNR2-iLHktz6nMvKYjd_D1t4R2rX7w/exec";
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbwSZfstNdMl2q_bNdWPixp8bDKawJjDft5GLfinUfybeCAJb3X_oJPDYdt5CAXa6fCbrQ/exec";
         
-        let matriculaLogada = "";
-        let baseItems = [];
-        let stockItems = [];
-        let carrinhoRetirada = [];
-        let carrinhoEntrada = [];
+        let usuarioLogado = null; 
+        let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
+
+        window.onload = () => {
+            const save = localStorage.getItem('almoxavic_user');
+            if(save) {
+                usuarioLogado = JSON.parse(save);
+                abrirTela('menu');
+                carregarDados();
+            } else {
+                abrirTela('login');
+            }
+        };
 
         function msg(texto, tipo) {
             const el = document.getElementById('status-msg');
@@ -244,17 +182,39 @@
             if(tipo === 'error') setTimeout(() => el.style.display = 'none', 4000);
         }
 
+        function abrirModal(mensagem) {
+            document.getElementById('modal-msg-texto').textContent = mensagem;
+            document.getElementById('modal-sucesso').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-sucesso').style.display = 'none';
+        }
+
         function abrirTela(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + id).classList.add('active');
             document.getElementById('status-msg').style.display = 'none';
-            if(id === 'relatorios') gerarRelatorios();
+            if(id === 'menu') definirSaudacao();
+            if(id === 'relatorios') gerarRelatorio('falta');
+        }
+
+        function definirSaudacao() {
+            if(!usuarioLogado) return;
+            const hora = new Date().getHours();
+            let compl = "Boa noite";
+            if(hora >= 5 && hora < 12) compl = "Bom dia";
+            else if(hora >= 12 && hora < 18) compl = "Boa tarde";
+            // Usa o primeiro nome se houver espaço
+            let primeiroNome = usuarioLogado.nome.split(' ')[0];
+            document.getElementById('saudacao-user').textContent = `${compl}, ${primeiroNome}!`;
         }
 
         function deslogar() {
-            matriculaLogada = "";
-            document.getElementById('login-user').value = "";
-            document.getElementById('login-pass').value = "";
+            localStorage.removeItem('almoxavic_user');
+            usuarioLogado = null;
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
             abrirTela('login');
         }
 
@@ -268,210 +228,133 @@
                 const res = await fetch(`${URL_GAS}?action=login&id=${id}&password=${pass}`);
                 const data = await res.json();
                 if (data.autorizado) {
-                    matriculaLogada = id; // Guarda quem está operando o app
+                    usuarioLogado = { id: id, nome: data.nome || id };
+                    localStorage.setItem('almoxavic_user', JSON.stringify(usuarioLogado));
                     abrirTela('menu');
                     carregarDados(); 
-                } else {
-                    msg("Acesso Negado!", "error");
-                }
+                } else { msg("Acesso Negado!", "error"); }
             } catch(e) { msg("Erro de rede ao logar.", "error"); }
         }
 
         async function carregarDados() {
-            msg("Buscando dados atualizados...", "loading");
+            msg("Atualizando nuvem...", "loading");
             try {
                 const res = await fetch(`${URL_GAS}?action=getData`);
                 const data = await res.json();
-                baseItems = data.base;
-                stockItems = data.estoque;
-                
-                atualizarDropdowns();
-                atualizarTabelaEstoque();
-                msg("", "");
-                document.getElementById('status-msg').style.display = 'none';
-            } catch(e) { msg("Erro ao carregar itens da nuvem.", "error"); }
+                baseItems = data.base; stockItems = data.estoque;
+                atualizarDropdowns(); atualizarTabelaEstoque();
+                msg("", ""); document.getElementById('status-msg').style.display = 'none';
+            } catch(e) { msg("Erro ao carregar itens.", "error"); }
         }
 
         function atualizarDropdowns() {
-            // Entrada Dropdown
-            let optionsEntrada = '<option value="">-- Escolha o Item --</option>';
-            baseItems.forEach(i => optionsEntrada += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
-            document.getElementById('in-item').innerHTML = optionsEntrada + '<option value="NOVO_ITEM">+ Adicionar Novo Item</option>';
+            let optIn = '<option value="">-- Escolha o Item --</option>';
+            baseItems.forEach(i => optIn += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
+            document.getElementById('in-item').innerHTML = optIn + '<option value="NOVO_ITEM">+ Adicionar Novo</option>';
             
-            // Retirada Dropdown: APENAS ITENS COM ESTOQUE FÍSICO MAIOR QUE 0
-            let optionsRetirada = '<option value="">-- Escolha o Item --</option>';
-            let temEstoque = false;
-            
+            let optOut = '<option value="">-- Escolha o Item --</option>', temEstoque = false;
             baseItems.forEach(i => {
                 const stk = stockItems.find(s => s.id == i.id);
-                if (stk && stk.qtd > 0) {
-                    optionsRetirada += `<option value="${i.id}">${i.id} - ${i.nome} (Disp: ${stk.qtd})</option>`;
-                    temEstoque = true;
-                }
+                if (stk && stk.qtd > 0) { optOut += `<option value="${i.id}">${i.id} - ${i.nome} (Disp: ${stk.qtd})</option>`; temEstoque = true; }
             });
-            
-            if (!temEstoque) optionsRetirada = '<option value="">-- Nenhum item com estoque disponível --</option>';
-            document.getElementById('out-item').innerHTML = optionsRetirada;
+            if (!temEstoque) optOut = '<option value="">-- Nenhum item disp. --</option>';
+            document.getElementById('out-item').innerHTML = optOut;
         }
 
         function atualizarTabelaEstoque() {
-            const tbody = document.getElementById('stock-tbody');
-            tbody.innerHTML = '';
-            let itensExibidos = 0;
-            
+            const tbody = document.getElementById('stock-tbody'); tbody.innerHTML = '';
+            let count = 0;
             stockItems.forEach(stk => {
-                if (stk.qtd > 0) { // REGRA: Mostra apenas o que possui quantidade real no galpão
+                if (stk.qtd > 0) {
                     const itemBase = baseItems.find(b => b.id == stk.id);
-                    const nome = itemBase ? itemBase.nome : `Item ${stk.id}`;
-                    tbody.innerHTML += `<tr><td>${nome}</td><td><strong>${stk.qtd}</strong></td></tr>`;
-                    itensExibidos++;
+                    tbody.innerHTML += `<tr><td>${itemBase ? itemBase.nome : `Item ${stk.id}`}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+                    count++;
                 }
             });
-            if(itensExibidos === 0) tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#999;">Nenhum produto em estoque.</td></tr>`;
+            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Estoque vazio.</td></tr>`;
         }
 
-        // LÓGICA DE GERAR OS CARRINHOS INTERNOS (ENTRADA E RETIRADA)
-        function verificarNovoItem() {
-            const val = document.getElementById('in-item').value;
-            document.getElementById('box-novo-item').style.display = (val === 'NOVO_ITEM') ? 'block' : 'none';
-        }
+        function verificarNovoItem() { document.getElementById('box-novo-item').style.display = (document.getElementById('in-item').value === 'NOVO_ITEM') ? 'block' : 'none'; }
 
         function adicionarAoCarrinho(fluxo) {
             if (fluxo === 'Retirada') {
-                const select = document.getElementById('out-item');
-                const qtd = parseInt(document.getElementById('out-qtd').value);
-                const idItem = select.value;
-                if(!idItem || !qtd || qtd < 1) return msg("Selecione o produto e a quantidade.", "error");
-                
-                let nomeItem = select.options[select.selectedIndex].text.split(' (Disp:')[0];
-                carrinhoRetirada.push({ idItem: idItem, nomeItem: nomeItem, qtd: qtd, isNovoItem: false });
-                
-                document.getElementById('out-qtd').value = '';
-                renderizarCarrinho('Retirada');
+                const select = document.getElementById('out-item'); const qtd = parseInt(document.getElementById('out-qtd').value);
+                if(!select.value || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
+                carrinhoRetirada.push({ idItem: select.value, nomeItem: select.options[select.selectedIndex].text.split(' (Disp:')[0], qtd: qtd, isNovoItem: false });
+                document.getElementById('out-qtd').value = ''; renderizarCarrinho('Retirada');
             } else {
-                const select = document.getElementById('in-item');
-                const qtd = parseInt(document.getElementById('in-qtd').value);
-                const valItem = select.value;
-                const nomeNovo = document.getElementById('in-novo-nome').value.trim();
+                const select = document.getElementById('in-item'); const qtd = parseInt(document.getElementById('in-qtd').value);
+                const novoNome = document.getElementById('in-novo-nome').value.trim();
+                if(!select.value || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
+                if(select.value === 'NOVO_ITEM' && !novoNome) return msg("Digite o nome do novo item.", "error");
 
-                if(!valItem || !qtd || qtd < 1) return msg("Preencha o item e quantidade válidos.", "error");
-                if(valItem === 'NOVO_ITEM' && !nomeNovo) return msg("Digite o nome do novo item.", "error");
+                if (select.value === 'NOVO_ITEM') carrinhoEntrada.push({ idItem: null, nomeItem: novoNome, qtd: qtd, isNovoItem: true, nomeNovoItem: novoNome });
+                else carrinhoEntrada.push({ idItem: select.value, nomeItem: select.options[select.selectedIndex].text, qtd: qtd, isNovoItem: false });
 
-                if (valItem === 'NOVO_ITEM') {
-                    carrinhoEntrada.push({ idItem: null, nomeItem: nomeNovo, qtd: qtd, isNovoItem: true, nomeNovoItem: nomeNovo });
-                } else {
-                    let nomeItem = select.options[select.selectedIndex].text;
-                    carrinhoEntrada.push({ idItem: valItem, nomeItem: nomeItem, qtd: qtd, isNovoItem: false });
-                }
-
-                document.getElementById('in-qtd').value = '';
-                document.getElementById('in-novo-nome').value = '';
-                document.getElementById('in-item').value = '';
-                verificarNovoItem();
-                renderizarCarrinho('Entrada');
+                document.getElementById('in-qtd').value = ''; document.getElementById('in-novo-nome').value = ''; document.getElementById('in-item').value = '';
+                verificarNovoItem(); renderizarCarrinho('Entrada');
             }
         }
 
-        function removerDoCarrinho(index, fluxo) {
-            if(fluxo === 'Retirada') {
-                carrinhoRetirada.splice(index, 1);
-            } else {
-                carrinhoEntrada.splice(index, 1);
-            }
-            renderizarCarrinho(fluxo);
-        }
+        function removerDoCarrinho(i, f) { f === 'Retirada' ? carrinhoRetirada.splice(i, 1) : carrinhoEntrada.splice(i, 1); renderizarCarrinho(f); }
 
         function renderizarCarrinho(fluxo) {
             const div = document.getElementById(fluxo === 'Retirada' ? 'cart-list-out' : 'cart-list-in');
             const lista = fluxo === 'Retirada' ? carrinhoRetirada : carrinhoEntrada;
-            
-            if(lista.length === 0) {
-                div.innerHTML = '<span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>';
-                return;
-            }
-            let html = '';
-            lista.forEach((item, index) => {
-                html += `<div class="cart-item">
-                    <span><strong>${item.qtd}x</strong> ${item.nomeItem}</span>
-                    <span class="cart-remove" onclick="removerDoCarrinho(${index}, '${fluxo}')"><i class="fa-solid fa-trash-can"></i></span>
-                </div>`;
-            });
-            div.innerHTML = html;
+            if(lista.length === 0) { div.innerHTML = '<span style="color:#999; font-size: 0.8rem;">Vazio...</span>'; return; }
+            div.innerHTML = lista.map((i, idx) => `<div class="cart-item"><span><strong>${i.qtd}x</strong> ${i.nomeItem}</span><span class="cart-remove" onclick="removerDoCarrinho(${idx}, '${fluxo}')"><i class="fa-solid fa-trash-can"></i></span></div>`).join('');
         }
 
-        // CONFIRMAÇÃO DO PROCESSO LADO A LADO E ENVIO DE PAYLOAD UNIFICADO
         async function confirmarProcesso(fluxo) {
             let payload = { tipo: fluxo, carrinho: [] };
+            
+            // Passa para o payload o NOME de quem está logado como 'quemFez'
+            payload.quemFez = usuarioLogado.nome; 
 
             if (fluxo === 'Retirada') {
-                const paraQuemMatricula = document.getElementById('out-quem').value.trim();
-                if(!paraQuemMatricula) return msg("Informe a matrícula de quem está retirando.", "error");
-                if(carrinhoRetirada.length === 0) return msg("Seu carrinho de retirada está vazio.", "error");
-                
-                payload.matricula = paraQuemMatricula; // Salva a matrícula coletada de quem retirou
+                const pQuem = document.getElementById('out-quem').value.trim();
+                if(!pQuem) return msg("Informe para quem é a retirada.", "error");
+                if(carrinhoRetirada.length === 0) return msg("Carrinho vazio.", "error");
+                payload.paraQuem = pQuem;
                 payload.carrinho = carrinhoRetirada;
             } else {
-                if(carrinhoEntrada.length === 0) return msg("Seu carrinho de entrada está vazio.", "error");
-                
-                payload.matricula = matriculaLogada; // Quem deu entrada é quem está logado no app
+                if(carrinhoEntrada.length === 0) return msg("Carrinho vazio.", "error");
                 payload.carrinho = carrinhoEntrada;
             }
 
-            msg(`Processando lote de ${fluxo}...`, "loading");
-            
+            msg("Processando na nuvem...", "loading");
             try {
-                await fetch(URL_GAS, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
+                await fetch(URL_GAS, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 
-                // Retorno visual imediato de sucesso na tela para quem concluiu
-                alert(`Sucesso! O lote de ${fluxo} foi registrado e processado na planilha.`);
+                // Abre o MODAL chique ao invés do 'alert' do navegador
+                abrirModal(`O lote de ${fluxo} foi registrado com sucesso na planilha.`);
                 
-                // Reseta variáveis e inputs locais
-                if(fluxo === 'Retirada') {
-                    carrinhoRetirada = [];
-                    document.getElementById('out-quem').value = '';
-                    renderizarCarrinho('Retirada');
-                } else {
-                    carrinhoEntrada = [];
-                    renderizarCarrinho('Entrada');
-                }
+                if(fluxo === 'Retirada') { carrinhoRetirada = []; document.getElementById('out-quem').value = ''; renderizarCarrinho('Retirada'); } 
+                else { carrinhoEntrada = []; renderizarCarrinho('Entrada'); }
                 
-                await carregarDados(); // Força a atualização local do estoque
-                abrirTela('menu');    // Retorna direto para a tela inicial (Painel de Controle)
-            } catch(e) {
-                msg("Ocorreu um erro ao salvar o lote. Tente novamente.", "error");
-            }
+                await carregarDados(); abrirTela('menu');
+            } catch(e) { msg("Erro ao salvar lote.", "error"); }
         }
 
-        // LÓGICA DE RELATÓRIO DINÂMICO INTERNO
-        function gerarRelatorios() {
-            const ulFalta = document.getElementById('report-falta');
-            const ulAcabando = document.getElementById('report-acabando');
+        function gerarRelatorio(tipo) {
+            document.querySelectorAll('.report-tabs button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-rel-${tipo}`).classList.add('active');
+            const ul = document.getElementById('report-view'); ul.innerHTML = '';
             
-            ulFalta.innerHTML = '';
-            ulAcabando.innerHTML = '';
-            
-            let countFalta = 0;
-            let countAcabando = 0;
-
+            let count = 0;
             baseItems.forEach(item => {
                 const stk = stockItems.find(s => s.id == item.id);
                 const qtd = stk ? stk.qtd : 0;
 
-                if (qtd === 0) {
-                    ulFalta.innerHTML += `<li><span>${item.nome}</span> <span class="badge-danger"><strong>ZERADO</strong></span></li>`;
-                    countFalta++;
-                } else if (qtd > 0 && qtd <= 5) {
-                    ulAcabando.innerHTML += `<li><span>${item.nome}</span> <span class="badge-warning">Restam <strong>${qtd} un.</strong></span></li>`;
-                    countAcabando++;
+                if (tipo === 'falta' && qtd === 0) {
+                    ul.innerHTML += `<li><span>${item.nome}</span><span style="color:var(--danger); font-weight:bold;">ZERADO</span></li>`; count++;
+                } else if (tipo === 'baixo' && qtd > 0 && qtd <= 5) {
+                    ul.innerHTML += `<li><span>${item.nome}</span><span style="color:var(--warning); font-weight:bold;">${qtd} un.</span></li>`; count++;
+                } else if (tipo === 'tudo' && qtd > 0) {
+                    ul.innerHTML += `<li><span>${item.nome}</span><span>${qtd} un.</span></li>`; count++;
                 }
             });
-
-            if (countFalta === 0) ulFalta.innerHTML = '<li><span style="color:#22c55e">Nenhum item em falta total!</span></li>';
-            if (countAcabando === 0) ulAcabando.innerHTML = '<li><span style="color:#22c55e">Nenhum item com estoque baixo!</span></li>';
+            if(count === 0) ul.innerHTML = `<li style="justify-content:center; color:#888;">Nenhum item nesta categoria.</li>`;
         }
     </script>
 </body>
