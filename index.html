@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almoxavic | Gestão</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00529b">
+    <link rel="apple-touch-icon" href="logo-pwa.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root { 
             --primary: #004482; 
-            --bg-blue: #00529b; /* Fundo do app azul */
+            --bg-blue: #00529b; 
             --bg-card: #ffffff; 
             --accent: #EF7A1D; 
             --text: #333333;
@@ -19,7 +24,6 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
         
-        /* Centralizando tudo 100% da tela */
         body { 
             background-color: var(--bg-blue); 
             display: flex; 
@@ -42,7 +46,6 @@
         .screen.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Estilo da Logo */
         .logo-container { text-align: center; margin-bottom: 20px; }
         .logo-container img { max-width: 150px; height: auto; }
         .logo-fallback { font-size: 2rem; color: var(--primary); font-weight: bold; }
@@ -61,7 +64,6 @@
         .btn-accent { background: var(--accent); }
         .btn-outline { background: transparent; border: 1px solid #999; color: #555; margin-top: 10px; }
         
-        /* Menu com botões quadrados lado a lado */
         .menu-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -69,19 +71,17 @@
             margin-bottom: 15px;
         }
         .menu-btn { 
-            aspect-ratio: 1; /* Força o botão a ser quadrado */
+            aspect-ratio: 1; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;
             font-size: 0.9rem; text-align: center; padding: 10px; background: var(--primary);
         }
         .menu-btn i { font-size: 2rem; }
         .menu-btn.estoque-btn { grid-column: span 2; aspect-ratio: auto; padding: 20px; background: #333; }
 
-        /* Carrinho de Retirada */
         .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; }
         .cart-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px solid #eee; }
         .cart-remove { color: red; cursor: pointer; font-weight: bold; }
 
-        /* Tabela de Estoque */
         .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
         
@@ -135,12 +135,12 @@
             <hr style="border: 0.5px solid #eee; margin: 15px 0;">
             
             <div class="input-group">
-                <label>Item</label>
+                <label>Item (Apenas com estoque)</label>
                 <select id="out-item" class="select-items"></select>
             </div>
             <div class="input-group" style="display:flex; gap:10px;">
                 <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
-                <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho()">+ Adicionar Item</button>
+                <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho()">+ Adicionar</button>
             </div>
             
             <label style="font-size: 0.85rem; color:#555;">Itens a retirar:</label>
@@ -169,10 +169,7 @@
                 <label>Quantidade</label>
                 <input type="number" id="in-qtd" placeholder="Qtd">
             </div>
-            <div class="input-group">
-                <label>Referência/Nota Fiscal</label>
-                <input type="text" id="in-ref" placeholder="NF 12345 (Opcional)">
-            </div>
+            
             <button class="btn-accent" onclick="confirmarEntrada()">Registrar Entrada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
@@ -192,7 +189,7 @@
 
     <script>
         // --- COLE AQUI SUA URL DO WEB APP ---
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbyH8l26oJrtjxaRPzFpLpb14xDcozb5fx_pKTgmeKQp6OU5pQ1IDnOAx2-eYsHivbZhLQ/exec";
+        const URL_GAS = "COLE_AQUI_A_URL_DO_SEU_WEB_APP";
         
         let baseItems = [];
         let stockItems = [];
@@ -221,14 +218,13 @@
                 const data = await res.json();
                 if (data.autorizado) {
                     abrirTela('menu');
-                    carregarDados(); // Puxa Base e Estoque ao logar
+                    carregarDados(); 
                 } else {
                     msg("Acesso Negado!", "error");
                 }
             } catch(e) { msg("Erro de rede.", "error"); }
         }
 
-        // Puxa as planilhas Base e Estoque e monta os Selects e Tabela
         async function carregarDados() {
             msg("Atualizando sistema...", "loading");
             try {
@@ -245,13 +241,28 @@
         }
 
         function atualizarDropdowns() {
-            let options = '<option value="">-- Escolha --</option>';
-            baseItems.forEach(i => options += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
+            // Dropdown de Entrada (Mostra todos os itens da base + opção de novo item)
+            let optionsEntrada = '<option value="">-- Escolha --</option>';
+            baseItems.forEach(i => optionsEntrada += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
+            document.getElementById('in-item').innerHTML = optionsEntrada + '<option value="NOVO_ITEM">+ Adicionar Novo Item</option>';
             
-            document.getElementById('out-item').innerHTML = options;
+            // Dropdown de Retirada (Mostra APENAS itens que possuem estoque > 0)
+            let optionsRetirada = '<option value="">-- Escolha --</option>';
+            let temEstoque = false;
             
-            // Na entrada, adiciona a opção de Novo Item no final
-            document.getElementById('in-item').innerHTML = options + '<option value="NOVO_ITEM">+ Adicionar Novo Item</option>';
+            baseItems.forEach(i => {
+                const stk = stockItems.find(s => s.id == i.id);
+                if (stk && stk.qtd > 0) {
+                    optionsRetirada += `<option value="${i.id}">${i.id} - ${i.nome} (Disp: ${stk.qtd})</option>`;
+                    temEstoque = true;
+                }
+            });
+            
+            if (!temEstoque) {
+                optionsRetirada = '<option value="">-- Nenhum item em estoque --</option>';
+            }
+            
+            document.getElementById('out-item').innerHTML = optionsRetirada;
         }
 
         function atualizarTabelaEstoque() {
@@ -259,7 +270,6 @@
             tbody.innerHTML = '';
             
             stockItems.forEach(stk => {
-                // Procura o nome do item na base
                 const itemBase = baseItems.find(b => b.id == stk.id);
                 const nome = itemBase ? itemBase.nome : `Item ${stk.id}`;
                 tbody.innerHTML += `<tr><td>${nome}</td><td><strong>${stk.qtd}</strong></td></tr>`;
@@ -274,7 +284,11 @@
             
             if(!idItem || !qtd || qtd < 1) return msg("Selecione um item e qtd > 0.", "error");
             
-            const nomeItem = select.options[select.selectedIndex].text;
+            // Pega a descrição completa (ex: "1 - Bota (Disp: 5)")
+            let nomeCompleto = select.options[select.selectedIndex].text;
+            // Limpa a string para mostrar apenas o nome no carrinho (tira o "(Disp: X)")
+            let nomeItem = nomeCompleto.split(' (Disp:')[0];
+            
             carrinhoRetirada.push({ idItem: idItem, nomeItem: nomeItem, qtd: qtd });
             
             document.getElementById('out-qtd').value = '';
@@ -317,7 +331,7 @@
             };
 
             await enviarPost(payload);
-            carrinhoRetirada = []; // limpa o carrinho
+            carrinhoRetirada = []; 
             renderizarCarrinho();
             document.getElementById('out-quem').value = '';
         }
@@ -331,7 +345,6 @@
         async function confirmarEntrada() {
             const valItem = document.getElementById('in-item').value;
             const qtd = document.getElementById('in-qtd').value;
-            const ref = document.getElementById('in-ref').value;
             const nomeNovo = document.getElementById('in-novo-nome').value;
 
             if(!valItem || !qtd) return msg("Preencha item e quantidade.", "error");
@@ -343,7 +356,7 @@
                 tipo: 'Entrada',
                 dataHora: new Date().toLocaleString('pt-BR'),
                 qtd: qtd,
-                referencia: ref,
+                referencia: "", // Enviado vazio pois removemos o campo
                 idItem: (valItem !== 'NOVO_ITEM') ? valItem : null,
                 isNovoItem: (valItem === 'NOVO_ITEM'),
                 nomeNovoItem: nomeNovo
@@ -351,7 +364,6 @@
 
             await enviarPost(payload);
             document.getElementById('in-qtd').value = '';
-            document.getElementById('in-ref').value = '';
             document.getElementById('in-novo-nome').value = '';
             document.getElementById('in-item').value = '';
             verificarNovoItem();
@@ -367,7 +379,7 @@
                 });
                 
                 alert("Operação realizada com sucesso!");
-                carregarDados(); // Atualiza a base para pegar novos itens e estoque atualizado
+                carregarDados(); 
                 abrirTela('menu');
             } catch(e) {
                 msg("Erro ao registrar no Sheets.", "error");
