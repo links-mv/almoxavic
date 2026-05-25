@@ -16,12 +16,18 @@
             --primary: #004482; 
             --bg-blue: #00529b; 
             --bg-card: #ffffff; 
-            --accent: #EF7A1D; 
             --dark: #222222;
             --danger: #dc2626;
             --warning: #d97706;
             --success: #16a34a;
             --border: #ddd;
+            
+            /* Cores customizadas dos botões do Menu */
+            --cor-entrada: #00529b;      /* Azul */
+            --cor-retirada: #EF7A1D;     /* Laranja */
+            --cor-estoque: #6b7280;      /* Cinza */
+            --cor-relatorio: #86efac;    /* Verde Claro */
+            --txt-relatorio: #064e3b;    /* Texto escuro para o verde claro ficar legível */
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
@@ -44,13 +50,18 @@
         button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
         button:hover { opacity: 0.9; }
         .btn-primary { background: var(--primary); }
-        .btn-accent { background: var(--accent); }
-        .btn-dark { background: var(--dark); }
         .btn-outline { background: transparent; border: 1px solid #999; color: #555; margin-top: 10px; }
         
+        /* Menu em Grid */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .menu-btn { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; font-size: 0.85rem; text-align: center; padding: 10px; background: var(--primary); }
+        .menu-btn { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; font-size: 0.85rem; text-align: center; padding: 10px; }
         .menu-btn i { font-size: 2rem; }
+        
+        /* Classes de cores específicas para os botões do Menu principal */
+        .btn-menu-entrada { background: var(--cor-entrada); color: white; }
+        .btn-menu-retirada { background: var(--cor-retirada); color: white; }
+        .btn-menu-estoque { background: var(--cor-estoque); color: white; }
+        .btn-menu-relatorio { background: var(--cor-relatorio); color: var(--txt-relatorio); }
 
         .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; max-height: 140px; overflow-y: auto; }
         .cart-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px solid #eee; }
@@ -59,7 +70,7 @@
         .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
         
-        /* Modal Customizado (Substitui o Alert) */
+        /* Modal Customizado interno */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
         .modal-content { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -90,10 +101,18 @@
         <div id="screen-menu" class="screen">
             <div class="user-greeting" id="saudacao-user">Boa tarde, Usuário</div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="abrirTela('retirada')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Retirada</button>
-                <button class="menu-btn btn-accent" onclick="abrirTela('entrada')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada</button>
-                <button class="menu-btn btn-dark" onclick="abrirTela('estoque')"><i class="fa-solid fa-boxes-stacked"></i> Estoque Atual</button>
-                <button class="menu-btn" style="background:#4b5563;" onclick="abrirTela('relatorios')"><i class="fa-solid fa-chart-pie"></i> Relatórios</button>
+                <button class="menu-btn btn-menu-entrada" onclick="abrirTela('entrada')">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada
+                </button>
+                <button class="menu-btn btn-menu-retirada" onclick="abrirTela('retirada')">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Retirada
+                </button>
+                <button class="menu-btn btn-menu-estoque" onclick="abrirTela('estoque')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Estoque Atual
+                </button>
+                <button class="menu-btn btn-menu-relatorio" onclick="abrirTela('relatorios')">
+                    <i class="fa-solid fa-chart-pie"></i> Relatórios
+                </button>
             </div>
             <button class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
         </div>
@@ -114,18 +133,18 @@
             </div>
             <label style="font-size: 0.85rem; color:#555;">Lista de Retirada:</label>
             <div class="cart-box" id="cart-list-out"><span style="color:#999; font-size: 0.8rem;">Vazio...</span></div>
-            <button class="btn-accent" onclick="confirmarProcesso('Retirada')">Confirmar Retirada</button>
+            <button style="background: var(--cor-retirada);" onclick="confirmarProcesso('Retirada')">Confirmar Retirada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-entrada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Entrada de Materiais</h3>
             <div class="input-group"><label>Selecione o Item</label><select id="in-item" onchange="verificarNovoItem()"></select></div>
-            <div class="input-group" id="box-novo-item" style="display:none;"><label style="color:var(--accent);">Nome Novo Item</label><input type="text" id="in-novo-nome"></div>
-            <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button class="btn-accent" style="width: 60%;" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
+            <div class="input-group" id="box-novo-item" style="display:none;"><label style="color:var(--cor-retirada);">Nome Novo Item</label><input type="text" id="in-novo-nome"></div>
+            <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button style="background: var(--cor-entrada);" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
             <label style="font-size: 0.85rem; color:#555;">Lista de Entrada:</label>
             <div class="cart-box" id="cart-list-in"><span style="color:#999; font-size: 0.8rem;">Vazio...</span></div>
-            <button class="btn-primary" onclick="confirmarProcesso('Entrada')">Registrar Entrada</button>
+            <button style="background: var(--primary);" onclick="confirmarProcesso('Entrada')">Registrar Entrada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
@@ -165,6 +184,7 @@
         let usuarioLogado = null; 
         let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
 
+        // SISTEMA DE PERSISTÊNCIA (MANTÉM LOGADO)
         window.onload = () => {
             const save = localStorage.getItem('almoxavic_user');
             if(save) {
@@ -205,7 +225,7 @@
             let compl = "Boa noite";
             if(hora >= 5 && hora < 12) compl = "Bom dia";
             else if(hora >= 12 && hora < 18) compl = "Boa tarde";
-            // Usa o primeiro nome se houver espaço
+            
             let primeiroNome = usuarioLogado.nome.split(' ')[0];
             document.getElementById('saudacao-user').textContent = `${compl}, ${primeiroNome}!`;
         }
@@ -307,8 +327,6 @@
 
         async function confirmarProcesso(fluxo) {
             let payload = { tipo: fluxo, carrinho: [] };
-            
-            // Passa para o payload o NOME de quem está logado como 'quemFez'
             payload.quemFez = usuarioLogado.nome; 
 
             if (fluxo === 'Retirada') {
@@ -326,7 +344,6 @@
             try {
                 await fetch(URL_GAS, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 
-                // Abre o MODAL chique ao invés do 'alert' do navegador
                 abrirModal(`O lote de ${fluxo} foi registrado com sucesso na planilha.`);
                 
                 if(fluxo === 'Retirada') { carrinhoRetirada = []; document.getElementById('out-quem').value = ''; renderizarCarrinho('Retirada'); } 
