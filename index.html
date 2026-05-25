@@ -18,7 +18,9 @@
             --bg-blue: #00529b; 
             --bg-card: #ffffff; 
             --accent: #EF7A1D; 
-            --text: #333333;
+            --dark: #222222;
+            --danger: #dc2626;
+            --warning: #d97706;
             --border: #ddd;
         }
         
@@ -60,10 +62,13 @@
             width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white;
             transition: 0.2s;
         }
+        button:hover { opacity: 0.9; }
         .btn-primary { background: var(--primary); }
         .btn-accent { background: var(--accent); }
+        .btn-dark { background: var(--dark); }
         .btn-outline { background: transparent; border: 1px solid #999; color: #555; margin-top: 10px; }
         
+        /* Menu com Grid Perfeito 2x2 de Botões Quadrados */
         .menu-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -73,18 +78,26 @@
         .menu-btn { 
             aspect-ratio: 1; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;
-            font-size: 0.9rem; text-align: center; padding: 10px; background: var(--primary);
+            font-size: 0.85rem; text-align: center; padding: 10px; background: var(--primary);
         }
         .menu-btn i { font-size: 2rem; }
-        .menu-btn.estoque-btn { grid-column: span 2; aspect-ratio: auto; padding: 20px; background: #333; }
 
-        .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; }
+        .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; max-height: 140px; overflow-y: auto; }
         .cart-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px solid #eee; }
-        .cart-remove { color: red; cursor: pointer; font-weight: bold; }
+        .cart-remove { color: var(--danger); cursor: pointer; font-weight: bold; padding: 0 5px; }
 
         .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
         
+        /* Listas de alertas e relatórios */
+        .report-section { margin-bottom: 20px; }
+        .report-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .badge-danger { color: var(--danger); }
+        .badge-warning { color: var(--warning); }
+        .report-list { list-style: none; font-size: 0.9rem; background: #fdfdfd; padding: 5px 10px; border-radius: 6px; border: 1px solid #f0f0f0; }
+        .report-list li { padding: 6px 0; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; }
+        .report-list li:last-child { border: none; }
+
         #status-msg { display: none; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 0.9rem;}
         .loading { background: #e0f2fe; color: #075985; }
         .error { background: #fee2e2; color: #991b1b; }
@@ -118,37 +131,40 @@
                 <button class="menu-btn btn-accent" onclick="abrirTela('entrada')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada
                 </button>
-                <button class="menu-btn estoque-btn" onclick="abrirTela('estoque')">
-                    <i class="fa-solid fa-boxes-stacked"></i> Visualizar Estoque
+                <button class="menu-btn btn-dark" onclick="abrirTela('estoque')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Estoque Atual
+                </button>
+                <button class="menu-btn" style="background:#4b5563;" onclick="abrirTela('relatorios')">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Relatórios
                 </button>
             </div>
-            <button class="btn-outline" onclick="abrirTela('login')">Sair</button>
+            <button class="btn-outline" onclick="deslogar()">Sair</button>
         </div>
 
         <div id="screen-retirada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Retirada de Materiais</h3>
             
             <div class="input-group">
-                <label>Para quem? (Nome ou Matrícula)</label>
-                <input type="text" id="out-quem" placeholder="Ex: João Silva ou 106982">
+                <label>Matrícula de quem está retirando</label>
+                <input type="text" id="out-quem" placeholder="Digite apenas a matrícula">
             </div>
             <hr style="border: 0.5px solid #eee; margin: 15px 0;">
             
             <div class="input-group">
-                <label>Item (Apenas com estoque)</label>
-                <select id="out-item" class="select-items"></select>
+                <label>Item (Apenas disponíveis)</label>
+                <select id="out-item"></select>
             </div>
             <div class="input-group" style="display:flex; gap:10px;">
                 <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
-                <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho()">+ Adicionar</button>
+                <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho('Retirada')">+ Adicionar</button>
             </div>
             
-            <label style="font-size: 0.85rem; color:#555;">Itens a retirar:</label>
-            <div class="cart-box" id="cart-list">
+            <label style="font-size: 0.85rem; color:#555;">Lista de Retirada:</label>
+            <div class="cart-box" id="cart-list-out">
                 <span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>
             </div>
 
-            <button class="btn-accent" onclick="confirmarRetirada()">Confirmar Retirada</button>
+            <button class="btn-accent" onclick="confirmarProcesso('Retirada')">Confirmar Retirada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
@@ -157,43 +173,70 @@
             
             <div class="input-group">
                 <label>Selecione o Item</label>
-                <select id="in-item" class="select-items" onchange="verificarNovoItem()"></select>
+                <select id="in-item" onchange="verificarNovoItem()"></select>
             </div>
             
             <div class="input-group" id="box-novo-item" style="display:none;">
                 <label style="color:var(--accent);">Nome do Novo Item</label>
-                <input type="text" id="in-novo-nome" placeholder="Ex: Capacete Azul">
+                <input type="text" id="in-novo-nome" placeholder="Ex: Calça Reforçada 48">
             </div>
 
-            <div class="input-group">
-                <label>Quantidade</label>
-                <input type="number" id="in-qtd" placeholder="Qtd">
+            <div class="input-group" style="display:flex; gap:10px;">
+                <input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;">
+                <button class="btn-accent" style="width: 60%;" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button>
             </div>
             
-            <button class="btn-accent" onclick="confirmarEntrada()">Registrar Entrada</button>
+            <label style="font-size: 0.85rem; color:#555;">Lista de Entrada:</label>
+            <div class="cart-box" id="cart-list-in">
+                <span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>
+            </div>
+            
+            <button class="btn-primary" onclick="confirmarProcesso('Entrada')">Registrar Entrada</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-estoque" class="screen">
-            <h3 style="margin-bottom: 15px; text-align:center;">Estoque Atual</h3>
+            <h3 style="margin-bottom: 15px; text-align:center;">Estoque Disponível</h3>
             <div style="max-height: 300px; overflow-y: auto;">
                 <table class="stock-table">
                     <thead><tr><th>Item</th><th>Qtd</th></tr></thead>
                     <tbody id="stock-tbody"></tbody>
                 </table>
             </div>
-            <button class="btn-primary" onclick="carregarDados()">Atualizar Tabela</button>
+            <button class="btn-primary" onclick="carregarDados()">Atualizar Lista</button>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+        </div>
+
+        <div id="screen-relatorios" class="screen">
+            <h3 style="margin-bottom: 20px; text-align:center;">Relatório Crítico</h3>
+            
+            <div class="report-section">
+                <div class="report-title badge-danger"><i class="fa-solid fa-triangle-exclamation"></i> Itens em Falta (Zeradados)</div>
+                <ul class="report-list" id="report-falta">
+                    <li><span style="color:#999">Nenhum item zerado</span></li>
+                </ul>
+            </div>
+
+            <div class="report-section">
+                <div class="report-title badge-warning"><i class="fa-solid fa-circle-exclamation"></i> Itens Acabando (Até 5 un.)</div>
+                <ul class="report-list" id="report-acabando">
+                    <li><span style="color:#999">Nenhum item acabando</span></li>
+                </ul>
+            </div>
+
+            <button class="btn-outline" onclick="abrirTela('menu')">Voltar ao Painel</button>
         </div>
     </div>
 
     <script>
         // --- COLE AQUI SUA URL DO WEB APP ---
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbyH8l26oJrtjxaRPzFpLpb14xDcozb5fx_pKTgmeKQp6OU5pQ1IDnOAx2-eYsHivbZhLQ/exec";
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbywJfVCH3QGkEy7B4452CQ0UaME6vxU_l-mFJQUlNR2-iLHktz6nMvKYjd_D1t4R2rX7w/exec";
         
+        let matriculaLogada = "";
         let baseItems = [];
         let stockItems = [];
         let carrinhoRetirada = [];
+        let carrinhoEntrada = [];
 
         function msg(texto, tipo) {
             const el = document.getElementById('status-msg');
@@ -205,10 +248,18 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + id).classList.add('active');
             document.getElementById('status-msg').style.display = 'none';
+            if(id === 'relatorios') gerarRelatorios();
+        }
+
+        function deslogar() {
+            matriculaLogada = "";
+            document.getElementById('login-user').value = "";
+            document.getElementById('login-pass').value = "";
+            abrirTela('login');
         }
 
         async function fazerLogin() {
-            const id = document.getElementById('login-user').value;
+            const id = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value;
             if(!id || !pass) return msg("Preencha matrícula e senha!", "error");
 
@@ -217,16 +268,17 @@
                 const res = await fetch(`${URL_GAS}?action=login&id=${id}&password=${pass}`);
                 const data = await res.json();
                 if (data.autorizado) {
+                    matriculaLogada = id; // Guarda quem está operando o app
                     abrirTela('menu');
                     carregarDados(); 
                 } else {
                     msg("Acesso Negado!", "error");
                 }
-            } catch(e) { msg("Erro de rede.", "error"); }
+            } catch(e) { msg("Erro de rede ao logar.", "error"); }
         }
 
         async function carregarDados() {
-            msg("Atualizando sistema...", "loading");
+            msg("Buscando dados atualizados...", "loading");
             try {
                 const res = await fetch(`${URL_GAS}?action=getData`);
                 const data = await res.json();
@@ -237,17 +289,17 @@
                 atualizarTabelaEstoque();
                 msg("", "");
                 document.getElementById('status-msg').style.display = 'none';
-            } catch(e) { msg("Erro ao carregar itens.", "error"); }
+            } catch(e) { msg("Erro ao carregar itens da nuvem.", "error"); }
         }
 
         function atualizarDropdowns() {
-            // Dropdown de Entrada (Mostra todos os itens da base + opção de novo item)
-            let optionsEntrada = '<option value="">-- Escolha --</option>';
+            // Entrada Dropdown
+            let optionsEntrada = '<option value="">-- Escolha o Item --</option>';
             baseItems.forEach(i => optionsEntrada += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
             document.getElementById('in-item').innerHTML = optionsEntrada + '<option value="NOVO_ITEM">+ Adicionar Novo Item</option>';
             
-            // Dropdown de Retirada (Mostra APENAS itens que possuem estoque > 0)
-            let optionsRetirada = '<option value="">-- Escolha --</option>';
+            // Retirada Dropdown: APENAS ITENS COM ESTOQUE FÍSICO MAIOR QUE 0
+            let optionsRetirada = '<option value="">-- Escolha o Item --</option>';
             let temEstoque = false;
             
             baseItems.forEach(i => {
@@ -258,119 +310,115 @@
                 }
             });
             
-            if (!temEstoque) {
-                optionsRetirada = '<option value="">-- Nenhum item em estoque --</option>';
-            }
-            
+            if (!temEstoque) optionsRetirada = '<option value="">-- Nenhum item com estoque disponível --</option>';
             document.getElementById('out-item').innerHTML = optionsRetirada;
         }
 
         function atualizarTabelaEstoque() {
             const tbody = document.getElementById('stock-tbody');
             tbody.innerHTML = '';
+            let itensExibidos = 0;
             
             stockItems.forEach(stk => {
-                const itemBase = baseItems.find(b => b.id == stk.id);
-                const nome = itemBase ? itemBase.nome : `Item ${stk.id}`;
-                tbody.innerHTML += `<tr><td>${nome}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+                if (stk.qtd > 0) { // REGRA: Mostra apenas o que possui quantidade real no galpão
+                    const itemBase = baseItems.find(b => b.id == stk.id);
+                    const nome = itemBase ? itemBase.nome : `Item ${stk.id}`;
+                    tbody.innerHTML += `<tr><td>${nome}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+                    itensExibidos++;
+                }
             });
+            if(itensExibidos === 0) tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#999;">Nenhum produto em estoque.</td></tr>`;
         }
 
-        // LÓGICA DO CARRINHO DE RETIRADA
-        function adicionarAoCarrinho() {
-            const select = document.getElementById('out-item');
-            const qtd = parseInt(document.getElementById('out-qtd').value);
-            const idItem = select.value;
-            
-            if(!idItem || !qtd || qtd < 1) return msg("Selecione um item e qtd > 0.", "error");
-            
-            // Pega a descrição completa (ex: "1 - Bota (Disp: 5)")
-            let nomeCompleto = select.options[select.selectedIndex].text;
-            // Limpa a string para mostrar apenas o nome no carrinho (tira o "(Disp: X)")
-            let nomeItem = nomeCompleto.split(' (Disp:')[0];
-            
-            carrinhoRetirada.push({ idItem: idItem, nomeItem: nomeItem, qtd: qtd });
-            
-            document.getElementById('out-qtd').value = '';
-            renderizarCarrinho();
-        }
-
-        function removerDoCarrinho(index) {
-            carrinhoRetirada.splice(index, 1);
-            renderizarCarrinho();
-        }
-
-        function renderizarCarrinho() {
-            const div = document.getElementById('cart-list');
-            if(carrinhoRetirada.length === 0) {
-                div.innerHTML = '<span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>';
-                return;
-            }
-            let html = '';
-            carrinhoRetirada.forEach((item, index) => {
-                html += `<div class="cart-item">
-                    <span>${item.qtd}x ${item.nomeItem}</span>
-                    <span class="cart-remove" onclick="removerDoCarrinho(${index})">X</span>
-                </div>`;
-            });
-            div.innerHTML = html;
-        }
-
-        async function confirmarRetirada() {
-            const paraQuem = document.getElementById('out-quem').value;
-            if(!paraQuem) return msg("Informe para quem é a retirada.", "error");
-            if(carrinhoRetirada.length === 0) return msg("Adicione itens ao carrinho.", "error");
-
-            msg("Registrando retirada...", "loading");
-            
-            const payload = {
-                tipo: 'Retirada',
-                dataHora: new Date().toLocaleString('pt-BR'),
-                paraQuem: paraQuem,
-                carrinho: carrinhoRetirada
-            };
-
-            await enviarPost(payload);
-            carrinhoRetirada = []; 
-            renderizarCarrinho();
-            document.getElementById('out-quem').value = '';
-        }
-
-        // LÓGICA DE ENTRADA
+        // LÓGICA DE GERAR OS CARRINHOS INTERNOS (ENTRADA E RETIRADA)
         function verificarNovoItem() {
             const val = document.getElementById('in-item').value;
             document.getElementById('box-novo-item').style.display = (val === 'NOVO_ITEM') ? 'block' : 'none';
         }
 
-        async function confirmarEntrada() {
-            const valItem = document.getElementById('in-item').value;
-            const qtd = document.getElementById('in-qtd').value;
-            const nomeNovo = document.getElementById('in-novo-nome').value;
+        function adicionarAoCarrinho(fluxo) {
+            if (fluxo === 'Retirada') {
+                const select = document.getElementById('out-item');
+                const qtd = parseInt(document.getElementById('out-qtd').value);
+                const idItem = select.value;
+                if(!idItem || !qtd || qtd < 1) return msg("Selecione o produto e a quantidade.", "error");
+                
+                let nomeItem = select.options[select.selectedIndex].text.split(' (Disp:')[0];
+                carrinhoRetirada.push({ idItem: idItem, nomeItem: nomeItem, qtd: qtd, isNovoItem: false });
+                
+                document.getElementById('out-qtd').value = '';
+                renderizarCarrinho('Retirada');
+            } else {
+                const select = document.getElementById('in-item');
+                const qtd = parseInt(document.getElementById('in-qtd').value);
+                const valItem = select.value;
+                const nomeNovo = document.getElementById('in-novo-nome').value.trim();
 
-            if(!valItem || !qtd) return msg("Preencha item e quantidade.", "error");
-            if(valItem === 'NOVO_ITEM' && !nomeNovo) return msg("Dê um nome ao novo item.", "error");
+                if(!valItem || !qtd || qtd < 1) return msg("Preencha o item e quantidade válidos.", "error");
+                if(valItem === 'NOVO_ITEM' && !nomeNovo) return msg("Digite o nome do novo item.", "error");
 
-            msg("Registrando entrada...", "loading");
+                if (valItem === 'NOVO_ITEM') {
+                    carrinhoEntrada.push({ idItem: null, nomeItem: nomeNovo, qtd: qtd, isNovoItem: true, nomeNovoItem: nomeNovo });
+                } else {
+                    let nomeItem = select.options[select.selectedIndex].text;
+                    carrinhoEntrada.push({ idItem: valItem, nomeItem: nomeItem, qtd: qtd, isNovoItem: false });
+                }
 
-            const payload = {
-                tipo: 'Entrada',
-                dataHora: new Date().toLocaleString('pt-BR'),
-                qtd: qtd,
-                referencia: "", // Enviado vazio pois removemos o campo
-                idItem: (valItem !== 'NOVO_ITEM') ? valItem : null,
-                isNovoItem: (valItem === 'NOVO_ITEM'),
-                nomeNovoItem: nomeNovo
-            };
-
-            await enviarPost(payload);
-            document.getElementById('in-qtd').value = '';
-            document.getElementById('in-novo-nome').value = '';
-            document.getElementById('in-item').value = '';
-            verificarNovoItem();
+                document.getElementById('in-qtd').value = '';
+                document.getElementById('in-novo-nome').value = '';
+                document.getElementById('in-item').value = '';
+                verificarNovoItem();
+                renderizarCarrinho('Entrada');
+            }
         }
 
-        // ENVIAR DADOS
-        async function enviarPost(payload) {
+        function removerDoCarrinho(index, fluxo) {
+            if(fluxo === 'Retirada') {
+                carrinhoRetirada.splice(index, 1);
+            } else {
+                carrinhoEntrada.splice(index, 1);
+            }
+            renderizarCarrinho(fluxo);
+        }
+
+        function renderizarCarrinho(fluxo) {
+            const div = document.getElementById(fluxo === 'Retirada' ? 'cart-list-out' : 'cart-list-in');
+            const lista = fluxo === 'Retirada' ? carrinhoRetirada : carrinhoEntrada;
+            
+            if(lista.length === 0) {
+                div.innerHTML = '<span style="font-size:0.8rem; color:#999;">Nenhum item adicionado...</span>';
+                return;
+            }
+            let html = '';
+            lista.forEach((item, index) => {
+                html += `<div class="cart-item">
+                    <span><strong>${item.qtd}x</strong> ${item.nomeItem}</span>
+                    <span class="cart-remove" onclick="removerDoCarrinho(${index}, '${fluxo}')"><i class="fa-solid fa-trash-can"></i></span>
+                </div>`;
+            });
+            div.innerHTML = html;
+        }
+
+        // CONFIRMAÇÃO DO PROCESSO LADO A LADO E ENVIO DE PAYLOAD UNIFICADO
+        async function confirmarProcesso(fluxo) {
+            let payload = { tipo: fluxo, carrinho: [] };
+
+            if (fluxo === 'Retirada') {
+                const paraQuemMatricula = document.getElementById('out-quem').value.trim();
+                if(!paraQuemMatricula) return msg("Informe a matrícula de quem está retirando.", "error");
+                if(carrinhoRetirada.length === 0) return msg("Seu carrinho de retirada está vazio.", "error");
+                
+                payload.matricula = paraQuemMatricula; // Salva a matrícula coletada de quem retirou
+                payload.carrinho = carrinhoRetirada;
+            } else {
+                if(carrinhoEntrada.length === 0) return msg("Seu carrinho de entrada está vazio.", "error");
+                
+                payload.matricula = matriculaLogada; // Quem deu entrada é quem está logado no app
+                payload.carrinho = carrinhoEntrada;
+            }
+
+            msg(`Processando lote de ${fluxo}...`, "loading");
+            
             try {
                 await fetch(URL_GAS, {
                     method: 'POST',
@@ -378,12 +426,52 @@
                     body: JSON.stringify(payload)
                 });
                 
-                alert("Operação realizada com sucesso!");
-                carregarDados(); 
-                abrirTela('menu');
+                // Retorno visual imediato de sucesso na tela para quem concluiu
+                alert(`Sucesso! O lote de ${fluxo} foi registrado e processado na planilha.`);
+                
+                // Reseta variáveis e inputs locais
+                if(fluxo === 'Retirada') {
+                    carrinhoRetirada = [];
+                    document.getElementById('out-quem').value = '';
+                    renderizarCarrinho('Retirada');
+                } else {
+                    carrinhoEntrada = [];
+                    renderizarCarrinho('Entrada');
+                }
+                
+                await carregarDados(); // Força a atualização local do estoque
+                abrirTela('menu');    // Retorna direto para a tela inicial (Painel de Controle)
             } catch(e) {
-                msg("Erro ao registrar no Sheets.", "error");
+                msg("Ocorreu um erro ao salvar o lote. Tente novamente.", "error");
             }
+        }
+
+        // LÓGICA DE RELATÓRIO DINÂMICO INTERNO
+        function gerarRelatorios() {
+            const ulFalta = document.getElementById('report-falta');
+            const ulAcabando = document.getElementById('report-acabando');
+            
+            ulFalta.innerHTML = '';
+            ulAcabando.innerHTML = '';
+            
+            let countFalta = 0;
+            let countAcabando = 0;
+
+            baseItems.forEach(item => {
+                const stk = stockItems.find(s => s.id == item.id);
+                const qtd = stk ? stk.qtd : 0;
+
+                if (qtd === 0) {
+                    ulFalta.innerHTML += `<li><span>${item.nome}</span> <span class="badge-danger"><strong>ZERADO</strong></span></li>`;
+                    countFalta++;
+                } else if (qtd > 0 && qtd <= 5) {
+                    ulAcabando.innerHTML += `<li><span>${item.nome}</span> <span class="badge-warning">Restam <strong>${qtd} un.</strong></span></li>`;
+                    countAcabando++;
+                }
+            });
+
+            if (countFalta === 0) ulFalta.innerHTML = '<li><span style="color:#22c55e">Nenhum item em falta total!</span></li>';
+            if (countAcabando === 0) ulAcabando.innerHTML = '<li><span style="color:#22c55e">Nenhum item com estoque baixo!</span></li>';
         }
     </script>
 </body>
