@@ -22,12 +22,11 @@
             --success: #16a34a;
             --border: #ddd;
             
-            /* Cores customizadas dos botões do Menu */
-            --cor-entrada: #00529b;      /* Azul */
-            --cor-retirada: #EF7A1D;     /* Laranja */
-            --cor-estoque: #6b7280;      /* Cinza */
-            --cor-relatorio: #86efac;    /* Verde Claro */
-            --txt-relatorio: #064e3b;    /* Texto escuro para o verde claro ficar legível */
+            --cor-entrada: #00529b;      
+            --cor-retirada: #EF7A1D;     
+            --cor-estoque: #6b7280;      
+            --cor-relatorio: #86efac;    
+            --txt-relatorio: #064e3b;    
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
@@ -52,12 +51,10 @@
         .btn-primary { background: var(--primary); }
         .btn-outline { background: transparent; border: 1px solid #999; color: #555; margin-top: 10px; }
         
-        /* Menu em Grid */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         .menu-btn { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; font-size: 0.85rem; text-align: center; padding: 10px; }
         .menu-btn i { font-size: 2rem; }
         
-        /* Classes de cores específicas para os botões do Menu principal */
         .btn-menu-entrada { background: var(--cor-entrada); color: white; }
         .btn-menu-retirada { background: var(--cor-retirada); color: white; }
         .btn-menu-estoque { background: var(--cor-estoque); color: white; }
@@ -70,7 +67,17 @@
         .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
         
-        /* Modal Customizado interno */
+        /* NOVO: Estilos do Dropdown Customizado para Mobile */
+        .dropdown-wrapper { position: relative; width: 100%; }
+        .dropdown-list {
+            display: none; position: absolute; top: 100%; left: 0; width: 100%;
+            background: white; border: 1px solid var(--primary); border-radius: 4px;
+            max-height: 180px; overflow-y: auto; z-index: 999; list-style: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-top: 2px;
+        }
+        .dropdown-list li { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; cursor: pointer; color: #333; }
+        .dropdown-list li:active, .dropdown-list li:hover { background: #e0f2fe; color: var(--primary); font-weight: 500; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
         .modal-content { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -125,8 +132,11 @@
             </div>
             <div class="input-group">
                 <label>Item (Apenas disponíveis)</label>
-                <input list="lista-out" id="out-item" placeholder="Comece a digitar o EPI...">
-                <datalist id="lista-out"></datalist>
+                <div class="dropdown-wrapper">
+                    <input type="text" id="out-item" placeholder="Comece a digitar o EPI..." autocomplete="off"
+                           onfocus="mostrarLista('out')" oninput="filtrarLista('out')" onblur="ocultarLista('out')">
+                    <ul id="lista-out" class="dropdown-list"></ul>
+                </div>
             </div>
             <div class="input-group" style="display:flex; gap:10px;">
                 <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
@@ -142,8 +152,11 @@
             <h3 style="margin-bottom: 15px; text-align:center;">Entrada de Materiais</h3>
             <div class="input-group">
                 <label>Selecione o Item</label>
-                <input list="lista-in" id="in-item" placeholder="Comece a digitar o EPI..." oninput="verificarNovoItem()">
-                <datalist id="lista-in"></datalist>
+                <div class="dropdown-wrapper">
+                    <input type="text" id="in-item" placeholder="Comece a digitar o EPI..." autocomplete="off"
+                           onfocus="mostrarLista('in')" oninput="filtrarLista('in')" onblur="ocultarLista('in')">
+                    <ul id="lista-in" class="dropdown-list"></ul>
+                </div>
             </div>
             <div class="input-group" id="box-novo-item" style="display:none;"><label style="color:var(--cor-retirada);">Nome Novo Item</label><input type="text" id="in-novo-nome"></div>
             <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button style="background: var(--cor-entrada);" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
@@ -189,7 +202,6 @@
         let usuarioLogado = null; 
         let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
 
-        // SISTEMA DE PERSISTÊNCIA (MANTÉM LOGADO)
         window.onload = () => {
             const save = localStorage.getItem('almoxavic_user');
             if(save) {
@@ -272,22 +284,60 @@
             } catch(e) { msg("Erro ao carregar itens.", "error"); }
         }
 
+        /* --- LÓGICA DO DROPDOWN MOBILE CUSTOMIZADO --- */
         function atualizarDropdowns() {
-            // Lista de Entrada
-            let optIn = '<option value="NOVO_ITEM">+ Adicionar Novo</option>';
-            baseItems.forEach(i => optIn += `<option value="${i.nome}">${i.id} - ${i.nome}</option>`);
-            document.getElementById('lista-in').innerHTML = optIn;
+            window.opcoesIn = [{valor: 'NOVO_ITEM', texto: '+ Adicionar Novo'}];
+            baseItems.forEach(i => window.opcoesIn.push({valor: i.nome, texto: `${i.id} - ${i.nome}`}));
             
-            // Lista de Retirada
-            let optOut = '';
+            window.opcoesOut = [];
             baseItems.forEach(i => {
                 const stk = stockItems.find(s => s.id == i.id);
                 if (stk && stk.qtd > 0) {
-                    optOut += `<option value="${i.nome}">Disponível: ${stk.qtd}</option>`;
+                    window.opcoesOut.push({valor: i.nome, texto: `${i.nome} (Disp: ${stk.qtd})`});
                 }
             });
-            document.getElementById('lista-out').innerHTML = optOut;
         }
+
+        function renderizarLista(fluxo, termo = '') {
+            const ul = document.getElementById(`lista-${fluxo}`);
+            const opcoes = fluxo === 'in' ? window.opcoesIn : window.opcoesOut;
+            ul.innerHTML = '';
+            
+            const filtradas = opcoes.filter(o => o.texto.toLowerCase().includes(termo.toLowerCase()));
+            
+            if(filtradas.length === 0) {
+                ul.innerHTML = '<li style="color:#999; cursor:default;">Nenhum item...</li>';
+            } else {
+                filtradas.forEach(o => {
+                    const li = document.createElement('li');
+                    li.textContent = o.texto;
+                    // Usa mousedown em vez de click para disparar antes do blur do input
+                    li.onmousedown = (e) => { 
+                        e.preventDefault(); 
+                        document.getElementById(`${fluxo}-item`).value = o.valor;
+                        ul.style.display = 'none';
+                        if(fluxo === 'in') verificarNovoItem();
+                    };
+                    ul.appendChild(li);
+                });
+            }
+        }
+
+        function mostrarLista(fluxo) {
+            renderizarLista(fluxo, document.getElementById(`${fluxo}-item`).value);
+            document.getElementById(`lista-${fluxo}`).style.display = 'block';
+        }
+
+        function filtrarLista(fluxo) {
+            renderizarLista(fluxo, document.getElementById(`${fluxo}-item`).value);
+            document.getElementById(`lista-${fluxo}`).style.display = 'block';
+            if(fluxo === 'in') verificarNovoItem();
+        }
+
+        function ocultarLista(fluxo) {
+            document.getElementById(`lista-${fluxo}`).style.display = 'none';
+        }
+        /* --------------------------------------------- */
 
         function atualizarTabelaEstoque() {
             const tbody = document.getElementById('stock-tbody'); tbody.innerHTML = '';
@@ -302,26 +352,32 @@
             if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Estoque vazio.</td></tr>`;
         }
 
-        function verificarNovoItem() { document.getElementById('box-novo-item').style.display = (document.getElementById('in-item').value === 'NOVO_ITEM') ? 'block' : 'none'; }
+        function verificarNovoItem() { 
+            const val = document.getElementById('in-item').value;
+            document.getElementById('box-novo-item').style.display = (val === 'NOVO_ITEM') ? 'block' : 'none'; 
+        }
 
         function adicionarAoCarrinho(fluxo) {
             if (fluxo === 'Retirada') {
-                const select = document.getElementById('out-item'); const qtd = parseInt(document.getElementById('out-qtd').value);
-                if(!select.value || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
+                const selectVal = document.getElementById('out-item').value.trim(); 
+                const qtd = parseInt(document.getElementById('out-qtd').value);
+                if(!selectVal || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
                 
-                carrinhoRetirada.push({ idItem: null, nomeItem: select.value, qtd: qtd, isNovoItem: false });
+                carrinhoRetirada.push({ idItem: null, nomeItem: selectVal, qtd: qtd, isNovoItem: false });
                 
                 document.getElementById('out-qtd').value = ''; 
                 document.getElementById('out-item').value = '';
                 renderizarCarrinho('Retirada');
             } else {
-                const select = document.getElementById('in-item'); const qtd = parseInt(document.getElementById('in-qtd').value);
+                const selectVal = document.getElementById('in-item').value.trim(); 
+                const qtd = parseInt(document.getElementById('in-qtd').value);
                 const novoNome = document.getElementById('in-novo-nome').value.trim();
-                if(!select.value || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
-                if(select.value === 'NOVO_ITEM' && !novoNome) return msg("Digite o nome do novo item.", "error");
+                
+                if(!selectVal || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
+                if(selectVal === 'NOVO_ITEM' && !novoNome) return msg("Digite o nome do novo item.", "error");
 
-                if (select.value === 'NOVO_ITEM') carrinhoEntrada.push({ idItem: null, nomeItem: novoNome, qtd: qtd, isNovoItem: true, nomeNovoItem: novoNome });
-                else carrinhoEntrada.push({ idItem: null, nomeItem: select.value, qtd: qtd, isNovoItem: false });
+                if (selectVal === 'NOVO_ITEM') carrinhoEntrada.push({ idItem: null, nomeItem: novoNome, qtd: qtd, isNovoItem: true, nomeNovoItem: novoNome });
+                else carrinhoEntrada.push({ idItem: null, nomeItem: selectVal, qtd: qtd, isNovoItem: false });
 
                 document.getElementById('in-qtd').value = ''; 
                 document.getElementById('in-novo-nome').value = ''; 
