@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00529b">
-    <link rel="apple-touch-icon" href="logo-pwa.png">
+    <link rel="apple-touch-icon" href="https://www.vli-logistica.com.br/wp-content/uploads/2023/09/cropped-logotipo-1-1-1.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -92,7 +92,7 @@
         <div id="status-msg"></div>
 
         <div id="screen-login" class="screen">
-            <div class="logo-container"><img src="logo-pwa.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
+            <div class="logo-container"><img src="https://www.vli-logistica.com.br/wp-content/uploads/2023/09/cropped-logotipo-1-1-1.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
             <div class="input-group"><input type="text" id="login-user" placeholder="Matrícula (ID)"></div>
             <div class="input-group"><input type="password" id="login-pass" placeholder="Senha"></div>
             <button class="btn-primary" onclick="fazerLogin()">Acessar</button>
@@ -125,7 +125,8 @@
             </div>
             <div class="input-group">
                 <label>Item (Apenas disponíveis)</label>
-                <select id="out-item"></select>
+                <input list="lista-out" id="out-item" placeholder="Comece a digitar o EPI...">
+                <datalist id="lista-out"></datalist>
             </div>
             <div class="input-group" style="display:flex; gap:10px;">
                 <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
@@ -139,7 +140,11 @@
 
         <div id="screen-entrada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Entrada de Materiais</h3>
-            <div class="input-group"><label>Selecione o Item</label><select id="in-item" onchange="verificarNovoItem()"></select></div>
+            <div class="input-group">
+                <label>Selecione o Item</label>
+                <input list="lista-in" id="in-item" placeholder="Comece a digitar o EPI..." oninput="verificarNovoItem()">
+                <datalist id="lista-in"></datalist>
+            </div>
             <div class="input-group" id="box-novo-item" style="display:none;"><label style="color:var(--cor-retirada);">Nome Novo Item</label><input type="text" id="in-novo-nome"></div>
             <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button style="background: var(--cor-entrada);" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
             <label style="font-size: 0.85rem; color:#555;">Lista de Entrada:</label>
@@ -179,7 +184,7 @@
 
     <script>
         // --- COLE AQUI SUA URL DO WEB APP ---
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbwSZfstNdMl2q_bNdWPixp8bDKawJjDft5GLfinUfybeCAJb3X_oJPDYdt5CAXa6fCbrQ/exec";
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbw_nX-tJ5C83-nnDPA_UMY3RKVFuYFQ0DeOcrG2dJHHPY1wrgD6qEVK4-I8yg8CcgMZRg/exec";
         
         let usuarioLogado = null; 
         let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
@@ -268,17 +273,20 @@
         }
 
         function atualizarDropdowns() {
-            let optIn = '<option value="">-- Escolha o Item --</option>';
-            baseItems.forEach(i => optIn += `<option value="${i.id}">${i.id} - ${i.nome}</option>`);
-            document.getElementById('in-item').innerHTML = optIn + '<option value="NOVO_ITEM">+ Adicionar Novo</option>';
+            // Lista de Entrada
+            let optIn = '<option value="NOVO_ITEM">+ Adicionar Novo</option>';
+            baseItems.forEach(i => optIn += `<option value="${i.nome}">${i.id} - ${i.nome}</option>`);
+            document.getElementById('lista-in').innerHTML = optIn;
             
-            let optOut = '<option value="">-- Escolha o Item --</option>', temEstoque = false;
+            // Lista de Retirada
+            let optOut = '';
             baseItems.forEach(i => {
                 const stk = stockItems.find(s => s.id == i.id);
-                if (stk && stk.qtd > 0) { optOut += `<option value="${i.id}">${i.id} - ${i.nome} (Disp: ${stk.qtd})</option>`; temEstoque = true; }
+                if (stk && stk.qtd > 0) {
+                    optOut += `<option value="${i.nome}">Disponível: ${stk.qtd}</option>`;
+                }
             });
-            if (!temEstoque) optOut = '<option value="">-- Nenhum item disp. --</option>';
-            document.getElementById('out-item').innerHTML = optOut;
+            document.getElementById('lista-out').innerHTML = optOut;
         }
 
         function atualizarTabelaEstoque() {
@@ -300,8 +308,12 @@
             if (fluxo === 'Retirada') {
                 const select = document.getElementById('out-item'); const qtd = parseInt(document.getElementById('out-qtd').value);
                 if(!select.value || !qtd || qtd < 1) return msg("Dados inválidos.", "error");
-                carrinhoRetirada.push({ idItem: select.value, nomeItem: select.options[select.selectedIndex].text.split(' (Disp:')[0], qtd: qtd, isNovoItem: false });
-                document.getElementById('out-qtd').value = ''; renderizarCarrinho('Retirada');
+                
+                carrinhoRetirada.push({ idItem: null, nomeItem: select.value, qtd: qtd, isNovoItem: false });
+                
+                document.getElementById('out-qtd').value = ''; 
+                document.getElementById('out-item').value = '';
+                renderizarCarrinho('Retirada');
             } else {
                 const select = document.getElementById('in-item'); const qtd = parseInt(document.getElementById('in-qtd').value);
                 const novoNome = document.getElementById('in-novo-nome').value.trim();
@@ -309,9 +321,11 @@
                 if(select.value === 'NOVO_ITEM' && !novoNome) return msg("Digite o nome do novo item.", "error");
 
                 if (select.value === 'NOVO_ITEM') carrinhoEntrada.push({ idItem: null, nomeItem: novoNome, qtd: qtd, isNovoItem: true, nomeNovoItem: novoNome });
-                else carrinhoEntrada.push({ idItem: select.value, nomeItem: select.options[select.selectedIndex].text, qtd: qtd, isNovoItem: false });
+                else carrinhoEntrada.push({ idItem: null, nomeItem: select.value, qtd: qtd, isNovoItem: false });
 
-                document.getElementById('in-qtd').value = ''; document.getElementById('in-novo-nome').value = ''; document.getElementById('in-item').value = '';
+                document.getElementById('in-qtd').value = ''; 
+                document.getElementById('in-novo-nome').value = ''; 
+                document.getElementById('in-item').value = '';
                 verificarNovoItem(); renderizarCarrinho('Entrada');
             }
         }
