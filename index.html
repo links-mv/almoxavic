@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00529b">
-    <link rel="apple-touch-icon" href="https://www.vli-logistica.com.br/wp-content/uploads/2023/09/cropped-logotipo-1-1-1.png">
+    <link rel="apple-touch-icon" href="logo-pwa.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -67,7 +67,6 @@
         .stock-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .stock-table th, .stock-table td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: left; font-size: 0.9rem; }
         
-        /* NOVO: Estilos do Dropdown Customizado para Mobile */
         .dropdown-wrapper { position: relative; width: 100%; }
         .dropdown-list {
             display: none; position: absolute; top: 100%; left: 0; width: 100%;
@@ -99,7 +98,7 @@
         <div id="status-msg"></div>
 
         <div id="screen-login" class="screen">
-            <div class="logo-container"><img src="https://www.vli-logistica.com.br/wp-content/uploads/2023/09/cropped-logotipo-1-1-1.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
+            <div class="logo-container"><img src="logo-pwa.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
             <div class="input-group"><input type="text" id="login-user" placeholder="Matrícula (ID)"></div>
             <div class="input-group"><input type="password" id="login-pass" placeholder="Senha"></div>
             <button class="btn-primary" onclick="fazerLogin()">Acessar</button>
@@ -196,7 +195,6 @@
     </div>
 
     <script>
-        // --- COLE AQUI SUA URL DO WEB APP ---
         const URL_GAS = "https://script.google.com/macros/s/AKfycbw_nX-tJ5C83-nnDPA_UMY3RKVFuYFQ0DeOcrG2dJHHPY1wrgD6qEVK4-I8yg8CcgMZRg/exec";
         
         let usuarioLogado = null; 
@@ -284,7 +282,6 @@
             } catch(e) { msg("Erro ao carregar itens.", "error"); }
         }
 
-        /* --- LÓGICA DO DROPDOWN MOBILE CUSTOMIZADO --- */
         function atualizarDropdowns() {
             window.opcoesIn = [{valor: 'NOVO_ITEM', texto: '+ Adicionar Novo'}];
             baseItems.forEach(i => window.opcoesIn.push({valor: i.nome, texto: `${i.id} - ${i.nome}`}));
@@ -311,7 +308,6 @@
                 filtradas.forEach(o => {
                     const li = document.createElement('li');
                     li.textContent = o.texto;
-                    // Usa mousedown em vez de click para disparar antes do blur do input
                     li.onmousedown = (e) => { 
                         e.preventDefault(); 
                         document.getElementById(`${fluxo}-item`).value = o.valor;
@@ -337,7 +333,6 @@
         function ocultarLista(fluxo) {
             document.getElementById(`lista-${fluxo}`).style.display = 'none';
         }
-        /* --------------------------------------------- */
 
         function atualizarTabelaEstoque() {
             const tbody = document.getElementById('stock-tbody'); tbody.innerHTML = '';
