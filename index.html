@@ -194,13 +194,18 @@
 
         <div id="screen-pedidos" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Solicitações de EPI</h3>
-            <div class="report-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 15px;">
-                <button id="btn-ped-Todos" onclick="renderizarPedidos('Todos')">Todos</button>
-                <button id="btn-ped-Pendente" onclick="renderizarPedidos('Pendente')">Pendentes</button>
-                <button id="btn-ped-Atendido" onclick="renderizarPedidos('Atendido')">Atendidos</button>
-                <button id="btn-ped-NaoAtendido" onclick="renderizarPedidos('Não Atendido')">Recusados</button>
+            
+            <div class="input-group" style="margin-bottom: 12px;">
+                <input type="text" id="search-pedidos" placeholder="🔍 Buscar por nome do solicitante..." oninput="renderizarPedidos()">
             </div>
-            <div id="pedidos-view" style="max-height: 260px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
+
+            <div class="report-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 15px;">
+                <button id="btn-ped-Todos" onclick="mudarAbaPedido('Todos')">Todos</button>
+                <button id="btn-ped-Pendente" onclick="mudarAbaPedido('Pendente')">Pendentes</button>
+                <button id="btn-ped-Atendido" onclick="mudarAbaPedido('Atendido')">Atendidos</button>
+                <button id="btn-ped-NaoAtendido" onclick="mudarAbaPedido('Não Atendido')">Recusados</button>
+            </div>
+            <div id="pedidos-view" style="max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
                 </div>
             <button class="btn-outline" style="margin-top: 10px;" onclick="abrirTela('menu')">Voltar</button>
         </div>
@@ -215,11 +220,23 @@
         </div>
     </div>
 
+    <div id="modal-detalhes" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 380px; text-align: left;">
+            <h3 style="color: var(--primary); margin-bottom: 15px; text-align: center;"><i class="fa-solid fa-circle-info"></i> Detalhes do Pedido</h3>
+            <div id="modal-detalhes-corpo" style="font-size: 0.95rem; color: #333; line-height: 1.6;">
+                </div>
+            <div id="modal-detalhes-acoes" style="margin-top: 20px;">
+                </div>
+            <button class="btn-outline" onclick="fecharModalDetalhes()" style="margin-top: 10px; width: 100%;">Fechar</button>
+        </div>
+    </div>
+
     <script>
         const URL_GAS = "https://script.google.com/macros/s/AKfycbwyk3_QFa3HTomhocFn3bZu9NnRvjTvOIb5T-u-0u8eoQhNNHcQdf3huqd_25HjVRFK1w/exec";
         
         let usuarioLogado = null; 
         let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [], pedidosGlobais = [];
+        let statusPedidoAtivo = 'Pendente'; // Controla qual aba de pedidos está selecionada
 
         window.onload = () => {
             const save = localStorage.getItem('almoxavic_user');
@@ -361,7 +378,6 @@
             filtrarTabelaEstoque();
         }
 
-        // FUNÇÃO NOVA: FILTRAGEM DO ESTOQUE EM TEMPO REAL
         function filtrarTabelaEstoque() {
             const termo = document.getElementById('search-stock').value.toLowerCase();
             const tbody = document.getElementById('stock-tbody'); 
@@ -474,10 +490,13 @@
             if(count === 0) ul.innerHTML = `<li style="justify-content:center; color:#888;">Nenhum item nesta categoria.</li>`;
         }
 
-        // --- NOVAS FUNÇÕES: GERENCIAMENTO DE SOLICITAÇÕES DE EPI ---
+        // --- FUNÇÕES MODIFICADAS DE SOLICITAÇÕES ---
 
         async function abrirTelaPedidos() {
             abrirTela('pedidos');
+            document.getElementById('search-pedidos').value = ''; // Limpa a barra de busca ao entrar
+            statusPedidoAtivo = 'Pendente'; // Força começar na aba "Pendentes"
+            
             const container = document.getElementById('pedidos-view');
             container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando solicitações...</div>';
             
@@ -489,14 +508,22 @@
                     return;
                 }
                 pedidosGlobais = data.pedidos || [];
-                renderizarPedidos('Pendente'); // Mostra os pendentes por padrão ao entrar
+                renderizarPedidos(); 
             } catch(e) {
                 container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">Erro de conexão ao carregar solicitações.</div>';
             }
         }
 
-        function renderizarPedidos(filtro) {
-            // Controla o estado visual ativo das abas
+        function mudarAbaPedido(filtro) {
+            statusPedidoAtivo = filtro;
+            renderizarPedidos();
+        }
+
+        // MODIFICAÇÃO: Renderiza combinando filtro de status + busca por nome do Solicitante
+        function renderizarPedidos() {
+            const filtro = statusPedidoAtivo;
+            
+            // Gerencia Abas Visuais
             const botoes = ['Todos', 'Pendente', 'Atendido', 'Não Atendido'];
             botoes.forEach(b => {
                 const el = document.getElementById(`btn-ped-${b.replace(' ', '')}`);
@@ -508,7 +535,14 @@
             const container = document.getElementById('pedidos-view');
             container.innerHTML = '';
             
-            const filtrados = pedidosGlobais.filter(p => filtro === 'Todos' || p.status === filtro);
+            // Captura o termo digitado na barra de pesquisa
+            const termoBusca = document.getElementById('search-pedidos').value.toLowerCase().trim();
+            
+            // Aplica os dois filtros em cascata
+            const filtrados = pedidosGlobais.filter(p => 
+                (filtro === 'Todos' || p.status === filtro) && 
+                p.solicitante.toLowerCase().includes(termoBusca)
+            );
             
             if (filtrados.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">Nenhuma solicitação encontrada.</div>`;
@@ -524,6 +558,8 @@
                 div.style.marginBottom = '10px';
                 div.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
                 div.style.textAlign = 'left';
+                div.style.cursor = 'pointer'; // Transforma em um botão clicável
+                div.setAttribute('onclick', `verDetalhesPedido(${p.linha})`); // Abre o modal ao clicar
                 
                 let corStatus = 'var(--warning)';
                 if (p.status === 'Atendido') corStatus = 'var(--success)';
@@ -532,27 +568,60 @@
                 let dataFormato = p.data;
                 try { dataFormato = new Date(p.data).toLocaleDateString('pt-BR'); } catch(e) {}
                 
-                let html = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.8rem; color:#666;">
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#666;">
                         <span><i class="fa-regular fa-calendar"></i> ${dataFormato}</span>
-                        <span style="color:${corStatus}; font-weight:600;">${p.status.toUpperCase()}</span>
+                        <span style="color:${corStatus}; font-weight:600; font-size:0.75rem;">${p.status.toUpperCase()}</span>
                     </div>
-                    <div style="font-size:0.9rem; margin-bottom:4px; color:#333;"><strong>Solicitante:</strong> ${p.solicitante}</div>
-                    <div style="font-size:0.9rem; margin-bottom:10px; color:#333;"><strong>EPI:</strong> ${p.epi} (<strong style="color:var(--primary);">${p.qtd} un.</strong>)</div>
+                    <div style="font-size:0.9rem; margin-bottom:2px; color:#222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><strong>De:</strong> ${p.solicitante}</div>
+                    <div style="font-size:0.85rem; color:#555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><strong>EPI:</strong> ${p.epi} (${p.qtd} un.)</div>
+                    <div style="font-size:0.75rem; color:var(--primary); text-align:right; margin-top:4px; font-weight:500;">Clique para expandir ➔</div>
                 `;
-                
-                if (p.status === 'Pendente') {
-                    html += `
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button style="background:var(--success); padding:8px 5px; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:4px;" onclick="atualizarStatusPedido(${p.linha}, 'Atendido')"><i class="fa-solid fa-check"></i> Atender</button>
-                            <button style="background:var(--danger); padding:8px 5px; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:4px;" onclick="atualizarStatusPedido(${p.linha}, 'Não Atendido')"><i class="fa-solid fa-xmark"></i> Recusar</button>
-                        </div>
-                    `;
-                }
-                
-                div.innerHTML = html;
                 container.appendChild(div);
             });
+        }
+
+        // MODIFICAÇÃO: EXIBE OS DETALHES COMPLETOS E GERENCIA AÇÕES DENTRO DO MODAL
+        function verDetalhesPedido(linhaPlanilha) {
+            const pedido = pedidosGlobais.find(p => p.linha === linhaPlanilha);
+            if (!pedido) return;
+
+            let dataFormatoCompleta = pedido.data;
+            try { dataFormatoCompleta = new Date(pedido.data).toLocaleString('pt-BR'); } catch(e) {}
+
+            let corStatus = 'var(--warning)';
+            if (pedido.status === 'Atendido') corStatus = 'var(--success)';
+            if (pedido.status === 'Não Atendido') corStatus = 'var(--danger)';
+
+            // Monta o texto de detalhes
+            const corpoModal = document.getElementById('modal-detalhes-corpo');
+            corpoModal.innerHTML = `
+                <p style="margin-bottom:6px;"><strong>📅 Registrado em:</strong><br>${dataFormatoCompleta}</p>
+                <p style="margin-bottom:6px;"><strong>👤 Solicitante:</strong><br>${pedido.solicitante}</p>
+                <p style="margin-bottom:6px;"><strong>🦺 Equipamento (EPI):</strong><br>${pedido.epi}</p>
+                <p style="margin-bottom:6px;"><strong>📦 Quantidade:</strong> <span style="color:var(--primary); font-weight:600;">${pedido.qtd} unidade(s)</span></p>
+                <p style="margin-bottom:6px;"><strong>🔢 Linha na Planilha:</strong> # ${pedido.linha}</p>
+                <p><strong>🚦 Situação Atual:</strong> <span style="color:${corStatus}; font-weight:600;">${pedido.status.toUpperCase()}</span></p>
+            `;
+
+            // Adiciona botões de ação caso o pedido esteja Pendente
+            const acoesModal = document.getElementById('modal-detalhes-acoes');
+            acoesModal.innerHTML = '';
+            
+            if (pedido.status === 'Pendente') {
+                acoesModal.innerHTML = `
+                    <div style="display:flex; gap:10px;">
+                        <button style="background:var(--success); padding:12px; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:6px; width:50%;" onclick="fecharModalDetalhes(); atualizarStatusPedido(${pedido.linha}, 'Atendido')"><i class="fa-solid fa-check"></i> Atender</button>
+                        <button style="background:var(--danger); padding:12px; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:6px; width:50%;" onclick="fecharModalDetalhes(); atualizarStatusPedido(${pedido.linha}, 'Não Atendido')"><i class="fa-solid fa-xmark"></i> Recusar</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modal-detalhes').style.display = 'flex';
+        }
+
+        function fecharModalDetalhes() {
+            document.getElementById('modal-detalhes').style.display = 'none';
         }
 
         async function atualizarStatusPedido(linha, novoStatus) {
@@ -576,7 +645,7 @@
                 
                 if (data.status === 'sucesso') {
                     abrirModal(`Solicitação atualizada para "${novoStatus}" com sucesso.`);
-                    await abrirTelaPedidos(); // Atualiza e recarrega a lista automaticamente
+                    await abrirTelaPedidos(); // Atualiza em tempo real e renderiza mantendo a estrutura
                 } else {
                     msg("Erro ao atualizar o pedido na planilha.", "error");
                 }
