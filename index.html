@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almoxavic | Gestão</title>
     
-    <link class="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00529b">
     <link rel="apple-touch-icon" href="logo-pwa.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -99,7 +99,6 @@
     <div class="card">
         <div id="status-msg"></div>
 
-        <!-- TELA: LOGIN -->
         <div id="screen-login" class="screen">
             <div class="logo-container"><img src="logo-pwa.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
             <div class="input-group"><input type="text" id="login-user" placeholder="Matrícula (ID)"></div>
@@ -107,7 +106,6 @@
             <button class="btn-primary" onclick="fazerLogin()">Acessar</button>
         </div>
 
-        <!-- TELA: MENU PRINCIPAL -->
         <div id="screen-menu" class="screen">
             <div class="user-greeting" id="saudacao-user">Boa tarde, Usuário</div>
             <div class="menu-grid">
@@ -130,7 +128,6 @@
             <button class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
         </div>
 
-        <!-- TELA: RETIRADA -->
         <div id="screen-retirada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Retirada de Materiais</h3>
             <div class="input-group">
@@ -155,7 +152,6 @@
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
-        <!-- TELA: ENTRADA -->
         <div id="screen-entrada" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Entrada de Materiais</h3>
             <div class="input-group">
@@ -174,19 +170,14 @@
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
-        <!-- TELA: ESTOQUE -->
         <div id="screen-estoque" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Estoque Disponível</h3>
-            <div class="input-group" style="margin-bottom: 12px;">
-                <input type="text" id="search-stock" placeholder="🔍 Pesquisar item no estoque..." oninput="filtrarTabelaEstoque()">
-            </div>
-            <div style="max-height: 250px; overflow-y: auto;">
+            <div style="max-height: 300px; overflow-y: auto;">
                 <table class="stock-table"><thead><tr><th>Item</th><th>Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
             </div>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
-        <!-- TELA: RELATÓRIOS -->
         <div id="screen-relatorios" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Análise de Estoque</h3>
             <div class="report-tabs">
@@ -198,13 +189,11 @@
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
-        <!-- TELA: SOLICITAÇÕES -->
         <div id="screen-pedidos" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Solicitações de EPI</h3>
             
-            <!-- CORRIGIDO: Agora busca corretamente no campo de nome que vem da planilha -->
             <div class="input-group" style="margin-bottom: 12px;">
-                <input type="text" id="search-pedidos" placeholder="🔍 Buscar por nome do funcionário..." oninput="renderizarPedidos()">
+                <input type="text" id="search-pedidos" placeholder="🔍 Buscar por nome ou protocolo..." oninput="renderizarPedidos()">
             </div>
 
             <div class="report-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 15px;">
@@ -214,13 +203,11 @@
                 <button id="btn-ped-NaoAtendido" onclick="mudarAbaPedido('Não Atendido')">Recusados</button>
             </div>
             <div id="pedidos-view" style="max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
-                <!-- Preenchido dinamicamente via JS -->
-            </div>
+                </div>
             <button class="btn-outline" style="margin-top: 10px;" onclick="abrirTela('menu')">Voltar</button>
         </div>
     </div>
 
-    <!-- MODAL GLOBAL DE SUCESSO -->
     <div id="modal-sucesso" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <i class="fa-solid fa-circle-check" style="color: var(--success); font-size: 4rem; margin-bottom: 10px;"></i>
@@ -230,16 +217,13 @@
         </div>
     </div>
 
-    <!-- MODAL DE DETALHES COMPLETOS DO PEDIDO -->
     <div id="modal-detalhes" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 380px; text-align: left;">
             <h3 style="color: var(--primary); margin-bottom: 15px; text-align: center;"><i class="fa-solid fa-circle-info"></i> Detalhes do Pedido</h3>
             <div id="modal-detalhes-corpo" style="font-size: 0.95rem; color: #333; line-height: 1.6;">
-                <!-- Injetado dinamicamente -->
-            </div>
+                </div>
             <div id="modal-detalhes-acoes" style="margin-top: 20px;">
-                <!-- Injetado dinamicamente baseado no status -->
-            </div>
+                </div>
             <button class="btn-outline" onclick="fecharModalDetalhes()" style="margin-top: 10px; width: 100%;">Fechar</button>
         </div>
     </div>
@@ -248,8 +232,8 @@
         const URL_GAS = "https://script.google.com/macros/s/AKfycbwyk3_QFa3HTomhocFn3bZu9NnRvjTvOIb5T-u-0u8eoQhNNHcQdf3huqd_25HjVRFK1w/exec";
         
         let usuarioLogado = null; 
-        let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [], pedidosGlobais = [];
-        let statusPedidoAtivo = 'Pendente';
+        let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
+        let pedidosGlobais = [], statusPedidoAtivo = 'Pendente';
 
         window.onload = () => {
             const save = localStorage.getItem('almoxavic_user');
@@ -269,7 +253,7 @@
         }
 
         function abrirModal(mensagem) {
-            document.getElementById('modal-msg-texto').textContent = mensaje;
+            document.getElementById('modal-msg-texto').textContent = message = mensagem;
             document.getElementById('modal-sucesso').style.display = 'flex';
         }
 
@@ -283,7 +267,6 @@
             document.getElementById('status-msg').style.display = 'none';
             if(id === 'menu') definirSaudacao();
             if(id === 'relatorios') gerarRelatorio('falta');
-            if(id === 'estoque') atualizarTabelaEstoque();
         }
 
         function definirSaudacao() {
@@ -387,28 +370,16 @@
         }
 
         function atualizarTabelaEstoque() {
-            document.getElementById('search-stock').value = '';
-            filtrarTabelaEstoque();
-        }
-
-        function filtrarTabelaEstoque() {
-            const termo = document.getElementById('search-stock').value.toLowerCase();
-            const tbody = document.getElementById('stock-tbody'); 
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('stock-tbody'); tbody.innerHTML = '';
             let count = 0;
-            
             stockItems.forEach(stk => {
                 if (stk.qtd > 0) {
                     const itemBase = baseItems.find(b => b.id == stk.id);
-                    const nomeItem = itemBase ? itemBase.nome : `Item ${stk.id}`;
-                    
-                    if(nomeItem.toLowerCase().includes(termo)) {
-                        tbody.innerHTML += `<tr><td>${nomeItem}</td><td><strong>${stk.qtd}</strong></td></tr>`;
-                        count++;
-                    }
+                    tbody.innerHTML += `<tr><td>${itemBase ? itemBase.nome : `Item ${stk.id}`}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+                    count++;
                 }
             });
-            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Nenhum item encontrado.</td></tr>`;
+            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Estoque vazio.</td></tr>`;
         }
 
         function verificarNovoItem() { 
@@ -503,7 +474,7 @@
             if(count === 0) ul.innerHTML = `<li style="justify-content:center; color:#888;">Nenhum item nesta categoria.</li>`;
         }
 
-        // --- FUNÇÕES DE SOLICITAÇÕES CORRIGIDAS ---
+        // --- SISTEMA DE SOLICITAÇÕES INTEGRADO E CORRIGIDO ---
 
         async function abrirTelaPedidos() {
             abrirTela('pedidos');
@@ -532,7 +503,6 @@
             renderizarPedidos();
         }
 
-        // CORREÇÃO DE MAPEAMENTO NA LISTA E NA BUSCA POR FILTRO
         function renderizarPedidos() {
             const filtro = statusPedidoAtivo;
             
@@ -549,7 +519,6 @@
             
             const termoBusca = document.getElementById('search-pedidos').value.toLowerCase().trim();
             
-            // CORRIGIDO: p.epi contém o nome do funcionário vindo do GAS
             const filtrados = pedidosGlobais.filter(p => {
                 const matchStatus = (filtro === 'Todos' || p.status === filtro);
                 const matchNome = p.epi ? p.epi.toLowerCase().includes(termoBusca) : false;
@@ -581,14 +550,16 @@
                 let dataFormato = p.data;
                 try { dataFormato = new Date(p.data).toLocaleDateString('pt-BR'); } catch(e) {}
                 
-                // CORRIGIDO: Exibição mapeada de acordo com as colunas reais da planilha
+                const detalheTexto = p.detalhes || p.detalhe || p.tamanho || p.observacao || p.obs || '';
+                const exibicaoDetalhe = detalheTexto ? ` (${detalheTexto})` : '';
+
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#666;">
                         <span><i class="fa-regular fa-calendar"></i> ${dataFormato}</span>
                         <span style="color:${corStatus}; font-weight:600; font-size:0.75rem;">${p.status.toUpperCase()}</span>
                     </div>
                     <div style="font-size:0.9rem; margin-bottom:2px; color:#222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><strong>De:</strong> ${p.epi}</div>
-                    <div style="font-size:0.85rem; color:#555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><strong>EPI:</strong> ${p.qtd} ${p.detalhes || p.detalhe ? `(${p.detalhes || p.detalhe})` : ''}</div>
+                    <div style="font-size:0.85rem; color:#555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><strong>EPI:</strong> ${p.qtd}${exibicaoDetalhe}</div>
                     <div style="font-size:0.75rem; color:#888;"><strong>Protocolo:</strong> ${p.solicitante}</div>
                     <div style="font-size:0.75rem; color:var(--primary); text-align:right; margin-top:4px; font-weight:500;">Clique para expandir ➔</div>
                 `;
@@ -596,7 +567,6 @@
             });
         }
 
-        // CORREÇÃO DE MAPEAMENTO DENTRO DO MODAL DE DETALHES
         function verDetalhesPedido(linhaPlanilha) {
             const pedido = pedidosGlobais.find(p => p.linha === linhaPlanilha);
             if (!pedido) return;
@@ -608,10 +578,8 @@
             if (pedido.status === 'Atendido') corStatus = 'var(--success)';
             if (pedido.status === 'Não Atendido') corStatus = 'var(--danger)';
 
-            // Mapeia a coluna 5 "Detalhes" que contém as numerações/tamanhos (ex: 39, G, Masculino 50)
-            const detalheExtra = pedido.detalhes || pedido.detalhe || 'Sem detalhes informados';
+            const detalheExtra = pedido.detalhes || pedido.detalhe || pedido.tamanho || pedido.observacao || pedido.obs || 'Sem detalhes informados';
 
-            // CORRIGIDO: Atribuição correta dos campos para exibição limpa no modal
             const corpoModal = document.getElementById('modal-detalhes-corpo');
             corpoModal.innerHTML = `
                 <p style="margin-bottom:6px;"><strong>📅 Registrado em:</strong><br>${dataFormatoCompleta}</p>
@@ -649,7 +617,7 @@
             msg("Salvando status...", "loading");
             const payload = {
                 action: 'updatePedido',
-                linha: line,
+                linha: linha,
                 status: novoStatus
             };
             
