@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Almoxavic | Gestão</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#00529b">
     <link rel="apple-touch-icon" href="logo-pwa.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
             --cor-estoque: #6b7280;      
             --cor-relatorio: #86efac;    
             --txt-relatorio: #064e3b;    
+            --cor-pedidos: #7c3aed;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
@@ -59,6 +60,7 @@
         .btn-menu-retirada { background: var(--cor-retirada); color: white; }
         .btn-menu-estoque { background: var(--cor-estoque); color: white; }
         .btn-menu-relatorio { background: var(--cor-relatorio); color: var(--txt-relatorio); }
+        .btn-menu-pedidos { background: var(--cor-pedidos); color: white; }
 
         .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; max-height: 140px; overflow-y: auto; }
         .cart-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px solid #eee; }
@@ -119,6 +121,9 @@
                 <button class="menu-btn btn-menu-relatorio" onclick="abrirTela('relatorios')">
                     <i class="fa-solid fa-chart-pie"></i> Relatórios
                 </button>
+                <button class="menu-btn btn-menu-pedidos" onclick="abrirTelaPedidos()">
+                    <i class="fa-solid fa-clipboard-list"></i> Solicitações
+                </button>
             </div>
             <button class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
         </div>
@@ -167,7 +172,10 @@
 
         <div id="screen-estoque" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Estoque Disponível</h3>
-            <div style="max-height: 300px; overflow-y: auto;">
+            <div class="input-group" style="margin-bottom: 12px;">
+                <input type="text" id="search-stock" placeholder="🔍 Pesquisar item no estoque..." oninput="filtrarTabelaEstoque()">
+            </div>
+            <div style="max-height: 250px; overflow-y: auto;">
                 <table class="stock-table"><thead><tr><th>Item</th><th>Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
             </div>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
@@ -183,6 +191,19 @@
             <ul class="report-list" id="report-view"></ul>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
+
+        <div id="screen-pedidos" class="screen">
+            <h3 style="margin-bottom: 15px; text-align:center;">Solicitações de EPI</h3>
+            <div class="report-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 15px;">
+                <button id="btn-ped-Todos" onclick="renderizarPedidos('Todos')">Todos</button>
+                <button id="btn-ped-Pendente" onclick="renderizarPedidos('Pendente')">Pendentes</button>
+                <button id="btn-ped-Atendido" onclick="renderizarPedidos('Atendido')">Atendidos</button>
+                <button id="btn-ped-NaoAtendido" onclick="renderizarPedidos('Não Atendido')">Recusados</button>
+            </div>
+            <div id="pedidos-view" style="max-height: 260px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
+                </div>
+            <button class="btn-outline" style="margin-top: 10px;" onclick="abrirTela('menu')">Voltar</button>
+        </div>
     </div>
 
     <div id="modal-sucesso" class="modal-overlay" style="display: none;">
@@ -195,10 +216,10 @@
     </div>
 
     <script>
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbw_nX-tJ5C83-nnDPA_UMY3RKVFuYFQ0DeOcrG2dJHHPY1wrgD6qEVK4-I8yg8CcgMZRg/exec";
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbwyk3_QFa3HTomhocFn3bZu9NnRvjTvOIb5T-u-0u8eoQhNNHcQdf3huqd_25HjVRFK1w/exec";
         
         let usuarioLogado = null; 
-        let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
+        let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [], pedidosGlobais = [];
 
         window.onload = () => {
             const save = localStorage.getItem('almoxavic_user');
@@ -232,6 +253,7 @@
             document.getElementById('status-msg').style.display = 'none';
             if(id === 'menu') definirSaudacao();
             if(id === 'relatorios') gerarRelatorio('falta');
+            if(id === 'estoque') atualizarTabelaEstoque();
         }
 
         function definirSaudacao() {
@@ -335,16 +357,29 @@
         }
 
         function atualizarTabelaEstoque() {
-            const tbody = document.getElementById('stock-tbody'); tbody.innerHTML = '';
+            document.getElementById('search-stock').value = '';
+            filtrarTabelaEstoque();
+        }
+
+        // FUNÇÃO NOVA: FILTRAGEM DO ESTOQUE EM TEMPO REAL
+        function filtrarTabelaEstoque() {
+            const termo = document.getElementById('search-stock').value.toLowerCase();
+            const tbody = document.getElementById('stock-tbody'); 
+            tbody.innerHTML = '';
             let count = 0;
+            
             stockItems.forEach(stk => {
                 if (stk.qtd > 0) {
                     const itemBase = baseItems.find(b => b.id == stk.id);
-                    tbody.innerHTML += `<tr><td>${itemBase ? itemBase.nome : `Item ${stk.id}`}</td><td><strong>${stk.qtd}</strong></td></tr>`;
-                    count++;
+                    const nomeItem = itemBase ? itemBase.nome : `Item ${stk.id}`;
+                    
+                    if(nomeItem.toLowerCase().includes(termo)) {
+                        tbody.innerHTML += `<tr><td>${nomeItem}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+                        count++;
+                    }
                 }
             });
-            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Estoque vazio.</td></tr>`;
+            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Nenhum item encontrado.</td></tr>`;
         }
 
         function verificarNovoItem() { 
@@ -437,6 +472,117 @@
                 }
             });
             if(count === 0) ul.innerHTML = `<li style="justify-content:center; color:#888;">Nenhum item nesta categoria.</li>`;
+        }
+
+        // --- NOVAS FUNÇÕES: GERENCIAMENTO DE SOLICITAÇÕES DE EPI ---
+
+        async function abrirTelaPedidos() {
+            abrirTela('pedidos');
+            const container = document.getElementById('pedidos-view');
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando solicitações...</div>';
+            
+            try {
+                const res = await fetch(`${URL_GAS}?action=getPedidos`);
+                const data = await res.json();
+                if (data.error) {
+                    container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--danger);">${data.error}</div>`;
+                    return;
+                }
+                pedidosGlobais = data.pedidos || [];
+                renderizarPedidos('Pendente'); // Mostra os pendentes por padrão ao entrar
+            } catch(e) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">Erro de conexão ao carregar solicitações.</div>';
+            }
+        }
+
+        function renderizarPedidos(filtro) {
+            // Controla o estado visual ativo das abas
+            const botoes = ['Todos', 'Pendente', 'Atendido', 'Não Atendido'];
+            botoes.forEach(b => {
+                const el = document.getElementById(`btn-ped-${b.replace(' ', '')}`);
+                if (el) el.classList.remove('active');
+            });
+            const elAtivo = document.getElementById(`btn-ped-${filtro.replace(' ', '')}`);
+            if (elAtivo) elAtivo.classList.add('active');
+
+            const container = document.getElementById('pedidos-view');
+            container.innerHTML = '';
+            
+            const filtrados = pedidosGlobais.filter(p => filtro === 'Todos' || p.status === filtro);
+            
+            if (filtrados.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">Nenhuma solicitação encontrada.</div>`;
+                return;
+            }
+            
+            filtrados.forEach(p => {
+                const div = document.createElement('div');
+                div.style.background = '#fff';
+                div.style.border = '1px solid #e2e8f0';
+                div.style.borderRadius = '8px';
+                div.style.padding = '12px';
+                div.style.marginBottom = '10px';
+                div.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
+                div.style.textAlign = 'left';
+                
+                let corStatus = 'var(--warning)';
+                if (p.status === 'Atendido') corStatus = 'var(--success)';
+                if (p.status === 'Não Atendido') corStatus = 'var(--danger)';
+                
+                let dataFormato = p.data;
+                try { dataFormato = new Date(p.data).toLocaleDateString('pt-BR'); } catch(e) {}
+                
+                let html = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.8rem; color:#666;">
+                        <span><i class="fa-regular fa-calendar"></i> ${dataFormato}</span>
+                        <span style="color:${corStatus}; font-weight:600;">${p.status.toUpperCase()}</span>
+                    </div>
+                    <div style="font-size:0.9rem; margin-bottom:4px; color:#333;"><strong>Solicitante:</strong> ${p.solicitante}</div>
+                    <div style="font-size:0.9rem; margin-bottom:10px; color:#333;"><strong>EPI:</strong> ${p.epi} (<strong style="color:var(--primary);">${p.qtd} un.</strong>)</div>
+                `;
+                
+                if (p.status === 'Pendente') {
+                    html += `
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <button style="background:var(--success); padding:8px 5px; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:4px;" onclick="atualizarStatusPedido(${p.linha}, 'Atendido')"><i class="fa-solid fa-check"></i> Atender</button>
+                            <button style="background:var(--danger); padding:8px 5px; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:4px;" onclick="atualizarStatusPedido(${p.linha}, 'Não Atendido')"><i class="fa-solid fa-xmark"></i> Recusar</button>
+                        </div>
+                    `;
+                }
+                
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+        }
+
+        async function atualizarStatusPedido(linha, novoStatus) {
+            const acaoTexto = novoStatus === 'Atendido' ? 'atender' : 'recusar';
+            if (!confirm(`Deseja marcar esta solicitação como ${acaoTexto.toUpperCase()}?`)) return;
+            
+            msg("Salvando status...", "loading");
+            const payload = {
+                action: 'updatePedido',
+                linha: linha,
+                status: novoStatus
+            };
+            
+            try {
+                const res = await fetch(URL_GAS, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(payload) 
+                });
+                const data = await res.json();
+                
+                if (data.status === 'sucesso') {
+                    abrirModal(`Solicitação atualizada para "${novoStatus}" com sucesso.`);
+                    await abrirTelaPedidos(); // Atualiza e recarrega a lista automaticamente
+                } else {
+                    msg("Erro ao atualizar o pedido na planilha.", "error");
+                }
+            } catch(e) {
+                msg("Erro de conexão ao salvar dados.", "error");
+            }
         }
     </script>
 </body>
