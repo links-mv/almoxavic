@@ -83,8 +83,8 @@
         .modal-content { background: white; padding: 30px 20px; border-radius: 16px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .report-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-        .report-tabs button { padding: 8px; font-size: 0.8rem; background: #e0e0e0; color: #333; }
+        .report-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .report-tabs button { padding: 8px; font-size: 0.8rem; background: #e0e0e0; color: #333; flex: 1; min-width: 30%; }
         .report-tabs button.active { background: var(--primary); color: white; }
         .report-list { list-style: none; font-size: 0.9rem; max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
         .report-list li { padding: 10px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; }
@@ -172,8 +172,13 @@
 
         <div id="screen-estoque" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Estoque Disponível</h3>
-            <div style="max-height: 300px; overflow-y: auto;">
-                <table class="stock-table"><thead><tr><th>Item</th><th>Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
+            
+            <div class="input-group" style="margin-bottom: 12px;">
+                <input type="text" id="search-stock" placeholder="🔍 Buscar EPI no estoque (ex: Luvas)..." oninput="filtrarTabelaEstoque()" style="border-color: var(--primary); background-color: #f8fafc;">
+            </div>
+            
+            <div style="max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
+                <table class="stock-table"><thead><tr><th style="background:#f1f5f9; position:sticky; top:0;">Item</th><th style="background:#f1f5f9; position:sticky; top:0;">Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
             </div>
             <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
@@ -196,11 +201,12 @@
                 <input type="text" id="search-pedidos" placeholder="🔍 Buscar por nome ou protocolo..." oninput="renderizarPedidos()">
             </div>
 
-            <div class="report-tabs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 15px;">
-                <button id="btn-ped-Todos" onclick="mudarAbaPedido('Todos')">Todos</button>
+            <div class="report-tabs" style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
                 <button id="btn-ped-Pendente" onclick="mudarAbaPedido('Pendente')">Pendentes</button>
+                <button id="btn-ped-ComEstoque" onclick="mudarAbaPedido('Com Estoque')" style="color:#065f46; border:1px solid #34d399; font-weight:600;">📦 Com Estoque</button>
                 <button id="btn-ped-Atendido" onclick="mudarAbaPedido('Atendido')">Atendidos</button>
-                <button id="btn-ped-NaoAtendido" onclick="mudarAbaPedido('Não Atendido')">Recusados</button>
+                <button id="btn-ped-NãoAtendido" onclick="mudarAbaPedido('Não Atendido')">Recusados</button>
+                <button id="btn-ped-Todos" onclick="mudarAbaPedido('Todos')">Todos</button>
             </div>
             <div id="pedidos-view" style="max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
                 </div>
@@ -229,7 +235,7 @@
     </div>
 
     <script>
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbxi6Xd3YeyE1yX4ReuZIsFkURlysiR0iHOm7uOqD9UcyuWMhhAL2fkbucNPL7Vmfuk5cg/exec";
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbwJSR0_cM-sfgAtrTIc6gE8UZZCVzGAiGBtPpYFty025td84BmwY5rRfpApXIy6d8CgNQ/exec";
         
         let usuarioLogado = null; 
         let baseItems = [], stockItems = [], carrinhoRetirada = [], carrinhoEntrada = [];
@@ -253,7 +259,7 @@
         }
 
         function abrirModal(mensagem) {
-            document.getElementById('modal-msg-texto').textContent = message = mensagem;
+            document.getElementById('modal-msg-texto').textContent = mensagem;
             document.getElementById('modal-sucesso').style.display = 'flex';
         }
 
@@ -267,6 +273,7 @@
             document.getElementById('status-msg').style.display = 'none';
             if(id === 'menu') definirSaudacao();
             if(id === 'relatorios') gerarRelatorio('falta');
+            if(id === 'estoque') atualizarTabelaEstoque();
         }
 
         function definirSaudacao() {
@@ -312,7 +319,8 @@
                 const res = await fetch(`${URL_GAS}?action=getData`);
                 const data = await res.json();
                 baseItems = data.base; stockItems = data.estoque;
-                atualizarDropdowns(); atualizarTabelaEstoque();
+                atualizarDropdowns();
+                if(document.getElementById('screen-estoque').classList.contains('active')) atualizarTabelaEstoque();
                 msg("", ""); document.getElementById('status-msg').style.display = 'none';
             } catch(e) { msg("Erro ao carregar itens.", "error"); }
         }
@@ -370,16 +378,28 @@
         }
 
         function atualizarTabelaEstoque() {
-            const tbody = document.getElementById('stock-tbody'); tbody.innerHTML = '';
+            document.getElementById('search-stock').value = '';
+            filtrarTabelaEstoque();
+        }
+
+        function filtrarTabelaEstoque() {
+            const termo = document.getElementById('search-stock').value.toLowerCase().trim();
+            const tbody = document.getElementById('stock-tbody'); 
+            tbody.innerHTML = '';
             let count = 0;
+            
             stockItems.forEach(stk => {
                 if (stk.qtd > 0) {
                     const itemBase = baseItems.find(b => b.id == stk.id);
-                    tbody.innerHTML += `<tr><td>${itemBase ? itemBase.nome : `Item ${stk.id}`}</td><td><strong>${stk.qtd}</strong></td></tr>`;
-                    count++;
+                    const nomeItem = itemBase ? itemBase.nome : `Item ${stk.id}`;
+                    
+                    if(nomeItem.toLowerCase().includes(termo)) {
+                        tbody.innerHTML += `<tr><td>${nomeItem}</td><td><strong>${stk.qtd}</strong></td></tr>`;
+                        count++;
+                    }
                 }
             });
-            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center">Estoque vazio.</td></tr>`;
+            if(count === 0) tbody.innerHTML = `<tr><td colspan="2" align="center" style="color:#888;">Nenhum item encontrado na busca.</td></tr>`;
         }
 
         function verificarNovoItem() { 
@@ -474,7 +494,18 @@
             if(count === 0) ul.innerHTML = `<li style="justify-content:center; color:#888;">Nenhum item nesta categoria.</li>`;
         }
 
-        // --- SISTEMA DE SOLICITAÇÕES INTEGRADO E CORRIGIDO ---
+        // --- SISTEMA DE SOLICITAÇÕES ---
+
+        // Cruza o nome do EPI pedido com o estoque na memória para verificar a disponibilidade
+        function temEstoqueSuficiente(nomeEpiPedido) {
+            if (!nomeEpiPedido) return false;
+            const epiLower = nomeEpiPedido.toString().toLowerCase().trim();
+            const baseItem = baseItems.find(b => b.nome.toLowerCase().trim() === epiLower);
+            if (!baseItem) return false;
+            
+            const stockItem = stockItems.find(s => s.id == baseItem.id);
+            return stockItem && stockItem.qtd > 0;
+        }
 
         async function abrirTelaPedidos() {
             abrirTela('pedidos');
@@ -506,9 +537,9 @@
         function renderizarPedidos() {
             const filtro = statusPedidoAtivo;
             
-            const botoes = ['Todos', 'Pendente', 'Atendido', 'Não Atendido'];
+            const botoes = ['Todos', 'Pendente', 'ComEstoque', 'Atendido', 'NãoAtendido'];
             botoes.forEach(b => {
-                const el = document.getElementById(`btn-ped-${b.replace(' ', '')}`);
+                const el = document.getElementById(`btn-ped-${b}`);
                 if (el) el.classList.remove('active');
             });
             const elAtivo = document.getElementById(`btn-ped-${filtro.replace(' ', '')}`);
@@ -520,7 +551,13 @@
             const termoBusca = document.getElementById('search-pedidos').value.toLowerCase().trim();
             
             const filtrados = pedidosGlobais.filter(p => {
-                const matchStatus = (filtro === 'Todos' || p.status === filtro);
+                let matchStatus = false;
+                
+                // Lógica para aba Com Estoque
+                if (filtro === 'Todos') matchStatus = true;
+                else if (filtro === 'Com Estoque') matchStatus = (p.status === 'Pendente' && temEstoqueSuficiente(p.qtd)); // p.qtd possui o nome do EPI mapeado do GAS
+                else matchStatus = (p.status === filtro);
+
                 const matchNome = p.epi ? p.epi.toLowerCase().includes(termoBusca) : false;
                 const matchProtocolo = p.solicitante ? p.solicitante.toLowerCase().includes(termoBusca) : false;
                 return matchStatus && (matchNome || matchProtocolo);
@@ -580,15 +617,26 @@
 
             const detalheExtra = pedido.detalhes || pedido.detalhe || pedido.tamanho || pedido.observacao || pedido.obs || 'Sem detalhes informados';
 
+            // ALERTA VISUAL NO MODAL PARA SABER SE TEM O ITEM EM ESTOQUE
+            let avisoEstoque = '';
+            if (pedido.status === 'Pendente') {
+                if(temEstoqueSuficiente(pedido.qtd)) {
+                    avisoEstoque = `<p style="margin-top:10px; padding:6px; background:#dcfce7; color:#166534; font-size:0.8rem; border-radius:4px; text-align:center;">📦 Item disponível em estoque para baixa automática!</p>`;
+                } else {
+                    avisoEstoque = `<p style="margin-top:10px; padding:6px; background:#fee2e2; color:#991b1b; font-size:0.8rem; border-radius:4px; text-align:center;">⚠️ Estoque zerado. Ao atender, o item poderá ficar negativo.</p>`;
+                }
+            }
+
             const corpoModal = document.getElementById('modal-detalhes-corpo');
             corpoModal.innerHTML = `
                 <p style="margin-bottom:6px;"><strong>📅 Registrado em:</strong><br>${dataFormatoCompleta}</p>
                 <p style="margin-bottom:6px;"><strong>📋 Protocolo:</strong><br>${pedido.solicitante}</p>
                 <p style="margin-bottom:6px;"><strong>👤 Funcionário:</strong><br>${pedido.epi}</p>
-                <p style="margin-bottom:6px;"><strong>🦺 Equipamento (EPI):</strong><br>${pedido.qtd}</p>
-                <p style="margin-bottom:6px;"><strong>📦 Tamanho / Detalhes:</strong> <span style="color:var(--primary); font-weight:600;">${detalheExtra}</span></p>
+                <p style="margin-bottom:6px;"><strong>🦺 EPI:</strong><br>${pedido.qtd}</p>
+                <p style="margin-bottom:6px;"><strong>📦 Detalhes:</strong> <span style="color:var(--primary); font-weight:600;">${detalheExtra}</span></p>
                 <p style="margin-bottom:6px;"><strong>🔢 Linha na Planilha:</strong> # ${pedido.linha}</p>
                 <p><strong>🚦 Situação Atual:</strong> <span style="color:${corStatus}; font-weight:600;">${pedido.status.toUpperCase()}</span></p>
+                ${avisoEstoque}
             `;
 
             const acoesModal = document.getElementById('modal-detalhes-acoes');
@@ -606,19 +654,21 @@
             document.getElementById('modal-detalhes').style.display = 'flex';
         }
 
-        function fecharModalDetalhes() {
-            document.getElementById('modal-detalhes').style.display = 'none';
-        }
-
         async function atualizarStatusPedido(linha, novoStatus) {
-            const acaoTexto = novoStatus === 'Atendido' ? 'atender' : 'recusar';
+            const pedido = pedidosGlobais.find(p => p.linha === linha);
+            const acaoTexto = novoStatus === 'Atendido' ? 'atender (isso fará baixa de 1 unidade do estoque)' : 'recusar';
+            
             if (!confirm(`Deseja marcar esta solicitação como ${acaoTexto.toUpperCase()}?`)) return;
             
-            msg("Salvando status...", "loading");
+            msg("Salvando e processando estoque...", "loading");
+            
+            // PAYLOAD PARA A PLANILHA: Enviando o EPI e o Funcionário para descontar no estoque e gerar histórico
             const payload = {
                 action: 'updatePedido',
                 linha: linha,
-                status: novoStatus
+                status: novoStatus,
+                nomeEpi: pedido.qtd,       // EPI mapeado na coluna D
+                funcionario: pedido.epi    // Funcionario mapeado na coluna C
             };
             
             try {
@@ -630,7 +680,8 @@
                 const data = await res.json();
                 
                 if (data.status === 'sucesso') {
-                    abrirModal(`Solicitação atualizada para "${novoStatus}" com sucesso.`);
+                    abrirModal(`Solicitação atualizada!`);
+                    await carregarDados(); // Dá um refresh nos dados em segundo plano (atualiza lista de estoque local)
                     await abrirTelaPedidos(); 
                 } else {
                     msg("Erro ao atualizar o pedido na planilha.", "error");
