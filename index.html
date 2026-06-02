@@ -103,29 +103,29 @@
             <div class="logo-container"><img src="logo-pwa.png" alt="Logo" onerror="this.outerHTML='<h2>ALMOXAVIC</h2>'"></div>
             <div class="input-group"><input type="text" id="login-user" placeholder="Matrícula (ID)"></div>
             <div class="input-group"><input type="password" id="login-pass" placeholder="Senha"></div>
-            <button class="btn-primary" onclick="fazerLogin()">Acessar</button>
+            <button type="button" class="btn-primary" onclick="fazerLogin()">Acessar</button>
         </div>
 
         <div id="screen-menu" class="screen">
             <div class="user-greeting" id="saudacao-user">Boa tarde, Usuário</div>
             <div class="menu-grid">
-                <button class="menu-btn btn-menu-entrada" onclick="abrirTela('entrada')">
+                <button type="button" class="menu-btn btn-menu-entrada" onclick="abrirTela('entrada')">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrada
                 </button>
-                <button class="menu-btn btn-menu-retirada" onclick="abrirTela('retirada')">
+                <button type="button" class="menu-btn btn-menu-retirada" onclick="abrirTela('retirada')">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> Retirada
                 </button>
-                <button class="menu-btn btn-menu-estoque" onclick="abrirTela('estoque')">
+                <button type="button" class="menu-btn btn-menu-estoque" onclick="abrirTela('estoque')">
                     <i class="fa-solid fa-boxes-stacked"></i> Estoque Atual
                 </button>
-                <button class="menu-btn btn-menu-relatorio" onclick="abrirTela('relatorios')">
+                <button type="button" class="menu-btn btn-menu-relatorio" onclick="abrirTela('relatorios')">
                     <i class="fa-solid fa-chart-pie"></i> Relatórios
                 </button>
-                <button class="menu-btn btn-menu-pedidos" onclick="abrirTelaPedidos()">
+                <button type="button" class="menu-btn btn-menu-pedidos" onclick="abrirTelaPedidos()">
                     <i class="fa-solid fa-clipboard-list"></i> Solicitações
                 </button>
             </div>
-            <button class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
+            <button type="button" class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
         </div>
 
         <div id="screen-retirada" class="screen">
@@ -144,12 +144,12 @@
             </div>
             <div class="input-group" style="display:flex; gap:10px;">
                 <input type="number" id="out-qtd" placeholder="Qtd" style="width: 40%;">
-                <button class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho('Retirada')">+ Adicionar</button>
+                <button type="button" class="btn-primary" style="width: 60%;" onclick="adicionarAoCarrinho('Retirada')">+ Adicionar</button>
             </div>
             <label style="font-size: 0.85rem; color:#555;">Lista de Retirada:</label>
             <div class="cart-box" id="cart-list-out"><span style="color:#999; font-size: 0.8rem;">Vazio...</span></div>
-            <button style="background: var(--cor-retirada);" onclick="confirmarProcesso('Retirada')">Confirmar Retirada</button>
-            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+            <button type="button" style="background: var(--cor-retirada);" onclick="confirmarProcesso('Retirada')">Confirmar Retirada</button>
+            <button type="button" class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-entrada" class="screen">
@@ -163,11 +163,11 @@
                 </div>
             </div>
             <div class="input-group" id="box-novo-item" style="display:none;"><label style="color:var(--cor-retirada);">Nome Novo Item</label><input type="text" id="in-novo-nome"></div>
-            <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button style="background: var(--cor-entrada);" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
+            <div class="input-group" style="display:flex; gap:10px;"><input type="number" id="in-qtd" placeholder="Qtd" style="width: 40%;"><button type="button" style="background: var(--cor-entrada);" onclick="adicionarAoCarrinho('Entrada')">+ Adicionar</button></div>
             <label style="font-size: 0.85rem; color:#555;">Lista de Entrada:</label>
             <div class="cart-box" id="cart-list-in"><span style="color:#999; font-size: 0.8rem;">Vazio...</span></div>
-            <button style="background: var(--primary);" onclick="confirmarProcesso('Entrada')">Registrar Entrada</button>
-            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+            <button type="button" style="background: var(--primary);" onclick="confirmarProcesso('Entrada')">Registrar Entrada</button>
+            <button type="button" class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-estoque" class="screen">
@@ -180,18 +180,18 @@
             <div style="max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
                 <table class="stock-table"><thead><tr><th style="background:#f1f5f9; position:sticky; top:0;">Item</th><th style="background:#f1f5f9; position:sticky; top:0;">Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
             </div>
-            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+            <button type="button" class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-relatorios" class="screen">
             <h3 style="margin-bottom: 15px; text-align:center;">Análise de Estoque</h3>
             <div class="report-tabs">
-                <button id="btn-rel-falta" onclick="gerarRelatorio('falta')">Em Falta</button>
-                <button id="btn-rel-baixo" onclick="gerarRelatorio('baixo')">Baixo (< 5)</button>
-                <button id="btn-rel-tudo" onclick="gerarRelatorio('tudo')">Tudo q/ Tem</button>
+                <button type="button" id="btn-rel-falta" onclick="gerarRelatorio('falta')">Em Falta</button>
+                <button type="button" id="btn-rel-baixo" onclick="gerarRelatorio('baixo')">Baixo (< 5)</button>
+                <button type="button" id="btn-rel-tudo" onclick="gerarRelatorio('tudo')">Tudo q/ Tem</button>
             </div>
             <ul class="report-list" id="report-view"></ul>
-            <button class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+            <button type="button" class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
         <div id="screen-pedidos" class="screen">
@@ -202,35 +202,35 @@
             </div>
 
             <div class="report-tabs" style="display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
-                <button id="btn-ped-Pendente" onclick="mudarAbaPedido('Pendente')">Pendentes</button>
-                <button id="btn-ped-ComEstoque" onclick="mudarAbaPedido('Com Estoque')" style="color:#065f46; border:1px solid #34d399; font-weight:600;">📦 Com Estoque</button>
-                <button id="btn-ped-Atendido" onclick="mudarAbaPedido('Atendido')">Atendidos</button>
-                <button id="btn-ped-NãoAtendido" onclick="mudarAbaPedido('Não Atendido')">Recusados</button>
-                <button id="btn-ped-Todos" onclick="mudarAbaPedido('Todos')">Todos</button>
+                <button type="button" id="btn-ped-Pendente" onclick="mudarAbaPedido('Pendente')">Pendentes</button>
+                <button type="button" id="btn-ped-ComEstoque" onclick="mudarAbaPedido('Com Estoque')" style="color:#065f46; border:1px solid #34d399; font-weight:600;">📦 Com Estoque</button>
+                <button type="button" id="btn-ped-Atendido" onclick="mudarAbaPedido('Atendido')">Atendidos</button>
+                <button type="button" id="btn-ped-NãoAtendido" onclick="mudarAbaPedido('Não Atendido')">Recusados</button>
+                <button type="button" id="btn-ped-Todos" onclick="mudarAbaPedido('Todos')">Todos</button>
             </div>
             <div id="pedidos-view" style="max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
                 </div>
-            <button class="btn-outline" style="margin-top: 10px;" onclick="abrirTela('menu')">Voltar</button>
+            <button type="button" class="btn-outline" style="margin-top: 10px;" onclick="abrirTela('menu')">Voltar</button>
         </div>
     </div>
 
-    <div id="modal-sucesso" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
+    <div id="modal-sucesso" class="modal-overlay" style="display: none;" onclick="fecharModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <i class="fa-solid fa-circle-check" style="color: var(--success); font-size: 4rem; margin-bottom: 10px;"></i>
             <h2 style="color: var(--dark); margin-bottom: 10px;">Sucesso!</h2>
             <p id="modal-msg-texto" style="color: #555; margin-bottom: 20px;">Lote registrado com sucesso.</p>
-            <button class="btn-primary" onclick="fecharModal()">OK, Continuar</button>
+            <button type="button" class="btn-primary" onclick="fecharModal()">OK, Continuar</button>
         </div>
     </div>
 
-    <div id="modal-detalhes" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 380px; text-align: left;">
+    <div id="modal-detalhes" class="modal-overlay" style="display: none;" onclick="fecharModalDetalhes()">
+        <div class="modal-content" style="max-width: 380px; text-align: left;" onclick="event.stopPropagation()">
             <h3 style="color: var(--primary); margin-bottom: 15px; text-align: center;"><i class="fa-solid fa-circle-info"></i> Detalhes do Pedido</h3>
             <div id="modal-detalhes-corpo" style="font-size: 0.95rem; color: #333; line-height: 1.6;">
                 </div>
             <div id="modal-detalhes-acoes" style="margin-top: 20px;">
                 </div>
-            <button class="btn-outline" onclick="fecharModalDetalhes()" style="margin-top: 10px; width: 100%;">Fechar</button>
+            <button type="button" class="btn-outline" onclick="fecharModalDetalhes()" style="margin-top: 10px; width: 100%;">Fechar</button>
         </div>
     </div>
 
@@ -259,7 +259,7 @@
         }
 
         function abrirModal(mensagem) {
-            document.getElementById('modal-msg-texto').textContent = mensagem;
+            document.getElementById('modal-msg-texto').textContent = mensagem; // <-- O erro do código estava exatamente aqui!
             document.getElementById('modal-sucesso').style.display = 'flex';
         }
 
@@ -496,7 +496,6 @@
 
         // --- SISTEMA DE SOLICITAÇÕES ---
 
-        // Cruza o nome do EPI pedido com o estoque na memória para verificar a disponibilidade
         function temEstoqueSuficiente(nomeEpiPedido) {
             if (!nomeEpiPedido) return false;
             const epiLower = nomeEpiPedido.toString().toLowerCase().trim();
@@ -553,9 +552,8 @@
             const filtrados = pedidosGlobais.filter(p => {
                 let matchStatus = false;
                 
-                // Lógica para aba Com Estoque
                 if (filtro === 'Todos') matchStatus = true;
-                else if (filtro === 'Com Estoque') matchStatus = (p.status === 'Pendente' && temEstoqueSuficiente(p.qtd)); // p.qtd possui o nome do EPI mapeado do GAS
+                else if (filtro === 'Com Estoque') matchStatus = (p.status === 'Pendente' && temEstoqueSuficiente(p.qtd)); 
                 else matchStatus = (p.status === filtro);
 
                 const matchNome = p.epi ? p.epi.toLowerCase().includes(termoBusca) : false;
@@ -617,7 +615,6 @@
 
             const detalheExtra = pedido.detalhes || pedido.detalhe || pedido.tamanho || pedido.observacao || pedido.obs || 'Sem detalhes informados';
 
-            // ALERTA VISUAL NO MODAL PARA SABER SE TEM O ITEM EM ESTOQUE
             let avisoEstoque = '';
             if (pedido.status === 'Pendente') {
                 if(temEstoqueSuficiente(pedido.qtd)) {
@@ -632,8 +629,8 @@
                 <p style="margin-bottom:6px;"><strong>📅 Registrado em:</strong><br>${dataFormatoCompleta}</p>
                 <p style="margin-bottom:6px;"><strong>📋 Protocolo:</strong><br>${pedido.solicitante}</p>
                 <p style="margin-bottom:6px;"><strong>👤 Funcionário:</strong><br>${pedido.epi}</p>
-                <p style="margin-bottom:6px;"><strong>🦺 EPI:</strong><br>${pedido.qtd}</p>
-                <p style="margin-bottom:6px;"><strong>📦 Detalhes:</strong> <span style="color:var(--primary); font-weight:600;">${detalheExtra}</span></p>
+                <p style="margin-bottom:6px;"><strong>🦺 Equipamento (EPI):</strong><br>${pedido.qtd}</p>
+                <p style="margin-bottom:6px;"><strong>📦 Tamanho / Detalhes:</strong> <span style="color:var(--primary); font-weight:600;">${detalheExtra}</span></p>
                 <p style="margin-bottom:6px;"><strong>🔢 Linha na Planilha:</strong> # ${pedido.linha}</p>
                 <p><strong>🚦 Situação Atual:</strong> <span style="color:${corStatus}; font-weight:600;">${pedido.status.toUpperCase()}</span></p>
                 ${avisoEstoque}
@@ -645,13 +642,18 @@
             if (pedido.status === 'Pendente') {
                 acoesModal.innerHTML = `
                     <div style="display:flex; gap:10px;">
-                        <button style="background:var(--success); padding:12px; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:6px; width:50%;" onclick="fecharModalDetalhes(); atualizarStatusPedido(${pedido.linha}, 'Atendido')"><i class="fa-solid fa-check"></i> Atender</button>
-                        <button style="background:var(--danger); padding:12px; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:6px; width:50%;" onclick="fecharModalDetalhes(); atualizarStatusPedido(${pedido.linha}, 'Não Atendido')"><i class="fa-solid fa-xmark"></i> Recusar</button>
+                        <button type="button" style="background:var(--success); padding:12px; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:6px; width:50%; border:none; border-radius:8px; color:white; cursor:pointer;" onclick="fecharModalDetalhes(); atualizarStatusPedido(${pedido.linha}, 'Atendido')"><i class="fa-solid fa-check"></i> Atender</button>
+                        <button type="button" style="background:var(--danger); padding:12px; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:6px; width:50%; border:none; border-radius:8px; color:white; cursor:pointer;" onclick="fecharModalDetalhes(); atualizarStatusPedido(${pedido.linha}, 'Não Atendido')"><i class="fa-solid fa-xmark"></i> Recusar</button>
                     </div>
                 `;
             }
 
             document.getElementById('modal-detalhes').style.display = 'flex';
+        }
+
+        // Função responsável por fechar a tela flutuante
+        function fecharModalDetalhes() {
+            document.getElementById('modal-detalhes').style.display = 'none';
         }
 
         async function atualizarStatusPedido(linha, novoStatus) {
@@ -662,13 +664,12 @@
             
             msg("Salvando e processando estoque...", "loading");
             
-            // PAYLOAD PARA A PLANILHA: Enviando o EPI e o Funcionário para descontar no estoque e gerar histórico
             const payload = {
                 action: 'updatePedido',
                 linha: linha,
                 status: novoStatus,
-                nomeEpi: pedido.qtd,       // EPI mapeado na coluna D
-                funcionario: pedido.epi    // Funcionario mapeado na coluna C
+                nomeEpi: pedido.qtd,       
+                funcionario: pedido.epi    
             };
             
             try {
@@ -681,7 +682,7 @@
                 
                 if (data.status === 'sucesso') {
                     abrirModal(`Solicitação atualizada!`);
-                    await carregarDados(); // Dá um refresh nos dados em segundo plano (atualiza lista de estoque local)
+                    await carregarDados(); 
                     await abrirTelaPedidos(); 
                 } else {
                     msg("Erro ao atualizar o pedido na planilha.", "error");
