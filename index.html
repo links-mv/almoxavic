@@ -28,6 +28,7 @@
             --cor-relatorio: #86efac;    
             --txt-relatorio: #064e3b;    
             --cor-pedidos: #7c3aed;
+            --cor-correcao: #0f766e;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
@@ -61,6 +62,10 @@
         .btn-menu-estoque { background: var(--cor-estoque); color: white; }
         .btn-menu-relatorio { background: var(--cor-relatorio); color: var(--txt-relatorio); }
         .btn-menu-pedidos { background: var(--cor-pedidos); color: white; }
+        .btn-menu-correcao { background: var(--cor-correcao); color: white; }
+
+        .current-qty-box { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: #0f766e; }
+        .current-qty-box strong { font-size: 1.3rem; }
 
         .cart-box { background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; min-height: 50px; max-height: 140px; overflow-y: auto; }
         .cart-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px solid #eee; }
@@ -124,6 +129,9 @@
                 <button type="button" class="menu-btn btn-menu-pedidos" onclick="abrirTelaPedidos()">
                     <i class="fa-solid fa-clipboard-list"></i> Solicitações
                 </button>
+                <button type="button" class="menu-btn btn-menu-correcao" onclick="abrirTela('correcao')">
+                    <i class="fa-solid fa-pen-to-square"></i> Corrigir Estoque
+                </button>
             </div>
             <button type="button" class="btn-outline" onclick="deslogar()">Sair (Desconectar)</button>
         </div>
@@ -180,6 +188,38 @@
             <div style="max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
                 <table class="stock-table"><thead><tr><th style="background:#f1f5f9; position:sticky; top:0;">Item</th><th style="background:#f1f5f9; position:sticky; top:0;">Qtd</th></tr></thead><tbody id="stock-tbody"></tbody></table>
             </div>
+            <button type="button" class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
+        </div>
+
+        <div id="screen-correcao" class="screen">
+            <h3 style="margin-bottom: 15px; text-align:center;">Corrigir Estoque</h3>
+            <p style="font-size: 0.8rem; color: #777; margin-bottom: 15px; text-align:center;">Use esta tela apenas para ajustar divergências (ex: contagem física, erro de lançamento). O valor informado <strong>substitui</strong> a quantidade atual.</p>
+
+            <div class="input-group">
+                <label>Item a corrigir</label>
+                <div class="dropdown-wrapper">
+                    <input type="text" id="cor-item" placeholder="Comece a digitar o EPI..." autocomplete="off"
+                           onfocus="mostrarLista('cor')" oninput="filtrarLista('cor')" onblur="ocultarLista('cor')">
+                    <ul id="lista-cor" class="dropdown-list"></ul>
+                </div>
+            </div>
+
+            <div class="current-qty-box" id="cor-qty-atual-box" style="display:none;">
+                <span>Quantidade atual em estoque:</span>
+                <strong id="cor-qty-atual-valor">0</strong>
+            </div>
+
+            <div class="input-group">
+                <label>Nova quantidade (valor final correto)</label>
+                <input type="number" id="cor-qtd-nova" placeholder="Ex: 12" min="0">
+            </div>
+
+            <div class="input-group">
+                <label>Motivo da correção (opcional, mas recomendado)</label>
+                <input type="text" id="cor-motivo" placeholder="Ex: Contagem física, item danificado...">
+            </div>
+
+            <button type="button" style="background: var(--cor-correcao);" onclick="confirmarCorrecao()">Salvar Correção</button>
             <button type="button" class="btn-outline" onclick="abrirTela('menu')">Voltar</button>
         </div>
 
@@ -274,6 +314,7 @@
             if(id === 'menu') definirSaudacao();
             if(id === 'relatorios') gerarRelatorio('falta');
             if(id === 'estoque') atualizarTabelaEstoque();
+            if(id === 'correcao') resetTelaCorrecao();
         }
 
         function definirSaudacao() {
@@ -336,11 +377,18 @@
                     window.opcoesOut.push({valor: i.nome, texto: `${i.nome} (Disp: ${stk.qtd})`});
                 }
             });
+
+            window.opcoesCor = [];
+            baseItems.forEach(i => {
+                const stk = stockItems.find(s => s.id == i.id);
+                const qtdAtual = stk ? stk.qtd : 0;
+                window.opcoesCor.push({valor: i.nome, texto: `${i.id} - ${i.nome} (Atual: ${qtdAtual})`, qtdAtual: qtdAtual});
+            });
         }
 
         function renderizarLista(fluxo, termo = '') {
             const ul = document.getElementById(`lista-${fluxo}`);
-            const opcoes = fluxo === 'in' ? window.opcoesIn : window.opcoesOut;
+            const opcoes = fluxo === 'in' ? window.opcoesIn : (fluxo === 'cor' ? window.opcoesCor : window.opcoesOut);
             ul.innerHTML = '';
             
             const filtradas = opcoes.filter(o => o.texto.toLowerCase().includes(termo.toLowerCase()));
@@ -356,6 +404,7 @@
                         document.getElementById(`${fluxo}-item`).value = o.valor;
                         ul.style.display = 'none';
                         if(fluxo === 'in') verificarNovoItem();
+                        if(fluxo === 'cor') selecionarItemCorrecao(o);
                     };
                     ul.appendChild(li);
                 });
@@ -375,6 +424,64 @@
 
         function ocultarLista(fluxo) {
             document.getElementById(`lista-${fluxo}`).style.display = 'none';
+        }
+
+        function resetTelaCorrecao() {
+            document.getElementById('cor-item').value = '';
+            document.getElementById('cor-qtd-nova').value = '';
+            document.getElementById('cor-motivo').value = '';
+            document.getElementById('cor-qty-atual-box').style.display = 'none';
+            window.itemCorrecaoSelecionado = null;
+        }
+
+        function selecionarItemCorrecao(opcao) {
+            window.itemCorrecaoSelecionado = opcao;
+            document.getElementById('cor-qty-atual-box').style.display = 'flex';
+            document.getElementById('cor-qty-atual-valor').textContent = opcao.qtdAtual;
+            document.getElementById('cor-qtd-nova').value = opcao.qtdAtual;
+        }
+
+        async function confirmarCorrecao() {
+            const nomeItem = document.getElementById('cor-item').value.trim();
+            const qtdNovaStr = document.getElementById('cor-qtd-nova').value;
+            const motivo = document.getElementById('cor-motivo').value.trim();
+
+            if (!nomeItem || !window.itemCorrecaoSelecionado || window.itemCorrecaoSelecionado.valor !== nomeItem) {
+                return msg("Selecione um item da lista.", "error");
+            }
+            if (qtdNovaStr === '' || isNaN(qtdNovaStr) || parseInt(qtdNovaStr) < 0) {
+                return msg("Informe uma quantidade válida (0 ou maior).", "error");
+            }
+
+            const qtdAnterior = window.itemCorrecaoSelecionado.qtdAtual;
+            const qtdNova = parseInt(qtdNovaStr);
+
+            if (qtdNova === qtdAnterior) {
+                return msg("A nova quantidade é igual à atual — nada para corrigir.", "error");
+            }
+
+            if (!confirm(`Confirma corrigir "${nomeItem}" de ${qtdAnterior} para ${qtdNova} unidades?`)) return;
+
+            msg("Salvando correção na nuvem...", "loading");
+
+            const payload = {
+                tipo: 'Correção',
+                quemFez: usuarioLogado.nome,
+                nomeItem: nomeItem,
+                qtdAnterior: qtdAnterior,
+                qtdNova: qtdNova,
+                motivo: motivo || '(não informado)'
+            };
+
+            try {
+                await fetch(URL_GAS, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                abrirModal(`Estoque de "${nomeItem}" corrigido para ${qtdNova} unidades.`);
+                resetTelaCorrecao();
+                await carregarDados();
+                abrirTela('menu');
+            } catch (e) {
+                msg("Erro ao salvar correção.", "error");
+            }
         }
 
         function atualizarTabelaEstoque() {
