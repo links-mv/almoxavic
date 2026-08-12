@@ -250,6 +250,9 @@
             </div>
             <div id="pedidos-view" style="max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; background: #fafafa;">
                 </div>
+            <button type="button" style="background:#0f766e; margin-top: 10px;" onclick="exportarPedidosTXT()">
+                <i class="fa-solid fa-file-arrow-down"></i> Exportar lista (.txt p/ Excel)
+            </button>
             <button type="button" class="btn-outline" style="margin-top: 10px;" onclick="abrirTela('menu')">Voltar</button>
         </div>
     </div>
@@ -640,6 +643,23 @@
             renderizarPedidos();
         }
 
+        function obterPedidosFiltrados() {
+            const filtro = statusPedidoAtivo;
+            const termoBusca = document.getElementById('search-pedidos').value.toLowerCase().trim();
+
+            return pedidosGlobais.filter(p => {
+                let matchStatus = false;
+
+                if (filtro === 'Todos') matchStatus = true;
+                else if (filtro === 'Com Estoque') matchStatus = (p.status === 'Pendente' && temEstoqueSuficiente(p.qtd));
+                else matchStatus = (p.status === filtro);
+
+                const matchNome = p.epi ? p.epi.toLowerCase().includes(termoBusca) : false;
+                const matchProtocolo = p.solicitante ? p.solicitante.toLowerCase().includes(termoBusca) : false;
+                return matchStatus && (matchNome || matchProtocolo);
+            });
+        }
+
         function renderizarPedidos() {
             const filtro = statusPedidoAtivo;
             
@@ -654,19 +674,7 @@
             const container = document.getElementById('pedidos-view');
             container.innerHTML = '';
             
-            const termoBusca = document.getElementById('search-pedidos').value.toLowerCase().trim();
-            
-            const filtrados = pedidosGlobais.filter(p => {
-                let matchStatus = false;
-                
-                if (filtro === 'Todos') matchStatus = true;
-                else if (filtro === 'Com Estoque') matchStatus = (p.status === 'Pendente' && temEstoqueSuficiente(p.qtd)); 
-                else matchStatus = (p.status === filtro);
-
-                const matchNome = p.epi ? p.epi.toLowerCase().includes(termoBusca) : false;
-                const matchProtocolo = p.solicitante ? p.solicitante.toLowerCase().includes(termoBusca) : false;
-                return matchStatus && (matchNome || matchProtocolo);
-            });
+            const filtrados = obterPedidosFiltrados();
             
             if (filtrados.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">Nenhuma solicitação encontrada.</div>`;
@@ -797,6 +805,72 @@
             } catch(e) {
                 msg("Erro de conexão ao salvar dados.", "error");
             }
+        }
+
+        // --- EXPORTAÇÃO DE SOLICITAÇÕES (TXT p/ Excel) ---
+
+        function exportarPedidosTXT() {
+            const lista = obterPedidosFiltrados();
+
+            if (lista.length === 0) {
+                msg("Nenhuma solicitação para exportar nesse filtro.", "error");
+                return;
+            }
+
+            // Escapa valores que contenham o separador, aspas ou quebras de linha
+            const escapar = (valor) => {
+                let texto = (valor === undefined || valor === null) ? '' : String(valor);
+                texto = texto.replace(/"/g, '""');
+                if (texto.includes(';') || texto.includes('"') || texto.includes('\n')) {
+                    texto = `"${texto}"`;
+                }
+                return texto;
+            };
+
+            const cabecalho = ['Data', 'Protocolo', 'Funcionario', 'EPI_Equipamento', 'Detalhes', 'Status', 'Linha_Planilha'];
+            const linhas = [cabecalho.join(';')];
+
+            lista.forEach(p => {
+                let dataFormatada = p.data;
+                try { dataFormatada = new Date(p.data).toLocaleString('pt-BR'); } catch(e) {}
+
+                const detalhe = p.detalhes || p.detalhe || p.tamanho || p.observacao || p.obs || '';
+
+                const linha = [
+                    dataFormatada,
+                    p.solicitante,
+                    p.epi,
+                    p.qtd,
+                    detalhe,
+                    p.status,
+                    p.linha
+                ].map(escapar).join(';');
+
+                linhas.push(linha);
+            });
+
+            // BOM no início garante que acentos (ç, ã, é...) apareçam certo ao abrir no Excel
+            const conteudo = '\uFEFF' + linhas.join('\r\n');
+
+            const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const agora = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const timestamp = `${agora.getFullYear()}${pad(agora.getMonth()+1)}${pad(agora.getDate())}_${pad(agora.getHours())}${pad(agora.getMinutes())}`;
+            const filtroArquivo = statusPedidoAtivo.replace(/ /g, '');
+            const nomeArquivo = `solicitacoes_${filtroArquivo}_${timestamp}.txt`;
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = nomeArquivo;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            msg(`Exportado! ${lista.length} solicitação(ões) no arquivo ${nomeArquivo}`, "loading");
+            setTimeout(() => { document.getElementById('status-msg').style.display = 'none'; }, 4000);
         }
     </script>
 </body>
